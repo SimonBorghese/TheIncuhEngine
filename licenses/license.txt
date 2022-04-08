@@ -1,0 +1,6 @@
+This application is the Incuh Engine
+The source code is located at src/* with an exception (seen below)
+The header files are located at include/IncuhEngine/*
+
+The code in src/extra/* are not part of this program and are under different terms
+The headers in include/thirdparty/* are not part of this program and are under difference terms

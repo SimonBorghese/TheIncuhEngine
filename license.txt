@@ -1,0 +1,9 @@
+TheIncuhEngine uses several libraries
+
+See licenses/ for a list of licenses of libraries used by the application
+
+Some libraries may have included other libraries or code in their header files not under the same license
+You may be able to find those licenses in the included headers
+
+Third party headers can be found at include/thirdparty
+Other third party code can be found at src/extra/*
