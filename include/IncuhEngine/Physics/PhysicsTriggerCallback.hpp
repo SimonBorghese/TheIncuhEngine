@@ -1,17 +1,33 @@
 #ifndef PHYSICSTRIGGERCALLBACK_HPP
 #define PHYSICSTRIGGERCALLBACK_HPP
+#include <GameState.h>
+#include <Launcher/LauncherArgs.hpp>
+#include <Window.hpp>
+#include <Shader.hpp>
+#include <Camera.hpp>
+#include <Bindings.hpp>
+#include <glm/glm.hpp>
+#include <AudioBase.hpp>
 #include <physx/PxPhysicsAPI.h>
 #include <physx/PxSimulationEventCallback.h>
 #include <stdio.h>
 #include <stdScale.h>
 #include <Server/Logging.h>
+#include <Engine/AudioBase.hpp>
+#include <fmt/core.h>
+#include <fmt/format.h>
+#include <functional>
 
 using namespace physx;
+
+typedef struct{
+    void (*levelChange)(std::string);
+} CallbackFunctions;
 
 class PhysicsTriggerCallback : public PxSimulationEventCallback
 {
     public:
-        PhysicsTriggerCallback();
+        PhysicsTriggerCallback(IncuhState *state, CallbackFunctions callbacks);
         virtual ~PhysicsTriggerCallback();
 
         //virtual void							onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs) {}
@@ -25,6 +41,9 @@ class PhysicsTriggerCallback : public PxSimulationEventCallback
     protected:
 
     private:
+        CallbackFunctions pFunctions;
+        triggerCallbacks *pCallback;
+        IncuhState *tState;
 };
 
 #endif // PHYSICSTRIGGERCALLBACK_HPP

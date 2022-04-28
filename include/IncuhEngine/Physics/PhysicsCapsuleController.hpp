@@ -13,6 +13,7 @@ class PhysicsCapsuleController: public PhysicsController{
         void makeConfig(physx::PxControllerManager *controllerManager);
     private:
         physx::PxCapsuleControllerDesc *pChrDec;
+        PhysicsMaterial *pMaterial;
 
 };
 

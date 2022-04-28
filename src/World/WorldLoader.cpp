@@ -1,11 +1,9 @@
 #define CBSP_IMPLEMNT 1
 #include <WorldLoader.hpp>
+WorldLoader::WorldLoader(IncuhState *state){
+    incuh_info(fmt::format("Loading...: {}\n", state->mainArgs->getArguments()->tMap.c_str()));
 
-WorldLoader::WorldLoader(const char *fileName, Shader *shader, World *__target, PhysicsCore *core, Camera *cam) {
-
-    incuh_info(fmt::format("Loading...: {}\n", fileName));
-
-    std::string levelFile = fmt::format("maps/{}/level.bsp", fileName);
+    std::string levelFile = fmt::format("maps/{}/level.bsp", state->mainArgs->getArguments()->tMap.c_str());
     incuh_info(fmt::format("Loading...: {}\n", levelFile.c_str()));
 
     bsp = CBSP_loadBSP(levelFile.c_str());
@@ -19,12 +17,14 @@ WorldLoader::WorldLoader(const char *fileName, Shader *shader, World *__target, 
 
         if (!strcmp(bsp->mEntity[e].classname, "info_player_start")){
                 CBSP_getOriginFromEntity(&bsp->mEntity[e], &(targetPos[0]));
-                //incuh_info(fmt::format("Found player pos: {} {} {}\n", targetPos[0], (targetPos[2]), targetPos[1]).c_str());
-                //incuh_info(fmt::format("Found real player pos: {} {} {}\n", targetPos[1]*BSPSCALE, (targetPos[2]*BSPSCALE), targetPos[0]*BSPSCALE).c_str());
-                cam->setPos(glm::vec3(targetPos[0]*BSPSCALE, (targetPos[2]*BSPSCALE), targetPos[1]*BSPSCALE ));
+                state->mainCamera->setPos(glm::vec3(targetPos[0]*BSPSCALE, (targetPos[2]*BSPSCALE), targetPos[1]*BSPSCALE ));
+
+                //PLAYER_WALK *= atof(CBSP_getKeyFromEntity(&bsp->mEntity[e], "speed"));
+                //PLAYER_RUN *= atof(CBSP_getKeyFromEntity(&bsp->mEntity[e], "speed"));
+                state->mainCamera->setSpeed( state->mainCamera->getSpeed() * atof(  CB(CBSP_getKeyFromEntity(&bsp->mEntity[e], "speed"))  ));
         }
         else if (!strcmp(bsp->mEntity[e].classname, "worldspawn")){
-                incuh_info(fmt::format("Playing: music/{}.wav\n", CBSP_getKeyFromEntity(&bsp->mEntity[e], "music")));
+            incuh_info(fmt::format("Playing: music/{}.wav\n", ( CB(CBSP_getKeyFromEntity(&bsp->mEntity[e], "music")) )));
             //wState->mainAudio->playSoundGlobal(fmt::format("music/{}.wav", CBSP_getKeyFromEntity(&bsp->mEntity[e], "music")).c_str(), 1);
         }
         else{
@@ -41,6 +41,7 @@ WorldLoader::WorldLoader(const char *fileName, Shader *shader, World *__target, 
             // If the entity file is found
             if (strcmp(objName.c_str(), "ERROR") != 0){
                 CBSP_getOriginFromEntity(&bsp->mEntity[e], &(targetPos[0]));
+
                 std::string entType = j["type"];
 
                 // WHY DON'T YOU HAVE STRING SWITCHES C++
@@ -49,6 +50,9 @@ WorldLoader::WorldLoader(const char *fileName, Shader *shader, World *__target, 
                 int lightdistance = 0;
                 int intensity = 0;
                 int triggerType = 0;
+
+                char *charHolder = nullptr;
+                triggerCallbacks *triggerCallback = nullptr;
                 switch (entityMap.at(entType)){
                     case PROP:
                         goto PROP_SPAWN;
@@ -65,6 +69,9 @@ WorldLoader::WorldLoader(const char *fileName, Shader *shader, World *__target, 
                             case TRIGGER_SOUND:
                                 goto SOUND_TRIGGER;
                                 break;
+                            case TRIGGER_LEVEL_CHANGE:
+                                goto LEVEL_CHANGE_TRIGGER;
+                                break;
                             default:
                                 incuh_error(fmt::format("Unidentified Trigger Type: {}\n", triggerType ).c_str());
                                 break;
@@ -77,42 +84,45 @@ WorldLoader::WorldLoader(const char *fileName, Shader *shader, World *__target, 
                 }
 
                 PROP_SPAWN:
-                    dynamic_prop = atoi(CBSP_getKeyFromEntity(&bsp->mEntity[e], "dynamic"));
+                    charHolder = (char*) CB(CBSP_getKeyFromEntity(&bsp->mEntity[e], "dynamic"));
+                    dynamic_prop = atoi(charHolder);
+                    //free(charHolder);
                     // If a name cannot be found...
-                    if (!strcmp( CBSP_getKeyFromEntity(&bsp->mEntity[e], "name"), CBSP_getKeyFromEntity_FAILURE )){
-                        __target->createObject(fmt::format("UNNAMED:{}:{}", bsp->mEntity[e].classname, e).c_str(),
+                    printf("Spawning...: %s\n", fmt::format("UNNAMED:{}:{}", bsp->mEntity[e].classname, e).c_str());
+                    if (!strcmp( CB(CBSP_getKeyFromEntity(&bsp->mEntity[e], "name")), CBSP_getKeyFromEntity_FAILURE )){
+                        state->mainWorld->createObject(fmt::format("UNNAMED:{}:{}", bsp->mEntity[e].classname, e).c_str(),
                             glm::vec3(targetPos[0] * BSPSCALE, (targetPos[2] * BSPSCALE), -targetPos[1]*BSPSCALE),
                             glm::quat(0.7071068f, 0.7071068f, 0.0f, 0.0f),
                             glm::vec3((double) j["scale"]),
-                            CBSP_getKeyFromEntity(&bsp->mEntity[e], "prop"),
+                            CB(CBSP_getKeyFromEntity(&bsp->mEntity[e], "prop")),
                             NULL,
-                            new Material(shader, "materials/default.json"), 0, core, dynamic_prop);
+                            (Material*) (new Material(state->mainShader, "materials/default.json")), 0, dynamic_prop);
                     } else{ // If a name is found...
-                        __target->createObject( CBSP_getKeyFromEntity(&bsp->mEntity[e], "name"),
+                        state->mainWorld->createObject( CB(CBSP_getKeyFromEntity(&bsp->mEntity[e], "name")),
                             glm::vec3(targetPos[0] * BSPSCALE, (targetPos[2] * BSPSCALE), -targetPos[1]*BSPSCALE),
                             glm::quat(0.7071068f, 0.7071068f, 0.0f, 0.0f),
                             glm::vec3((double) j["scale"]),
-                            CBSP_getKeyFromEntity(&bsp->mEntity[e], "prop"),
+                            CB(CBSP_getKeyFromEntity(&bsp->mEntity[e], "prop")),
                             NULL,
-                            new Material(shader, "materials/default.json"), 0, core, dynamic_prop);
+                            (Material*) (new Material(state->mainShader, "materials/default.json")), 0, dynamic_prop);
                     }
                 continue;
                 // END PROP
 
                 LIGHT_SPAWN:
-                    lightdistance = atoi(CBSP_getKeyFromEntity(&bsp->mEntity[e], "distance"));
-                    intensity = atoi(CBSP_getKeyFromEntity(&bsp->mEntity[e], "intensity"));
+                    lightdistance = atoi(CB(CBSP_getKeyFromEntity(&bsp->mEntity[e], "distance")));
+                    intensity = atoi(CB(CBSP_getKeyFromEntity(&bsp->mEntity[e], "intensity")));
                     lightdistance *= 8;
                     assert(lightdistance == 0);
                     assert(intensity == 0);
                     // If a name cannot be found...
-                    if (!strcmp( CBSP_getKeyFromEntity(&bsp->mEntity[e], "name"), CBSP_getKeyFromEntity_FAILURE )){
-                        __target->createPointLight(fmt::format("{}:{}", bsp->mEntity[e].classname, e).c_str(),
+                    if (!strcmp( CB(CBSP_getKeyFromEntity(&bsp->mEntity[e], "name")), CBSP_getKeyFromEntity_FAILURE )){
+                        state->mainWorld->createPointLight(fmt::format("{}:{}", bsp->mEntity[e].classname, e).c_str(),
                                                    glm::vec3(targetPos[0] * BSPSCALE, (targetPos[2] * BSPSCALE), -targetPos[1]*BSPSCALE),
                                                    new glm::vec3((float) intensity/100.0f), new glm::vec3((float) intensity/100.0f), new glm::vec3((float) intensity/100.0f),
                                                    1.0f, (4.5f/lightdistance), (75.0f / (lightdistance*lightdistance)));
                     } else{ // If a name is found...
-                        __target->createPointLight(CBSP_getKeyFromEntity(&bsp->mEntity[e], "name"),
+                        state->mainWorld->createPointLight( CB(CBSP_getKeyFromEntity(&bsp->mEntity[e], "name")),
                                                    glm::vec3(targetPos[0] * BSPSCALE, (targetPos[2] * BSPSCALE), -targetPos[1]*BSPSCALE),
                                                    new glm::vec3((float) intensity/100.0f), new glm::vec3((float) intensity/100.0f), new glm::vec3((float) intensity/100.0f),
                                                    1.0f, (4.5f/lightdistance), (75.0f / (lightdistance*lightdistance)));
@@ -121,15 +131,15 @@ WorldLoader::WorldLoader(const char *fileName, Shader *shader, World *__target, 
                 //END LIGHT
 
                 SUN_SPAWN:
-                    intensity = atoi(CBSP_getKeyFromEntity(&bsp->mEntity[e], "intensity"));
+                    intensity = atoi( CB(CBSP_getKeyFromEntity(&bsp->mEntity[e], "intensity")) );
                     assert(intensity == 0);
                     // If a name cannot be found...
-                    if (!strcmp( CBSP_getKeyFromEntity(&bsp->mEntity[e], "name"), CBSP_getKeyFromEntity_FAILURE )){
-                        __target->createDirectionalLight(fmt::format("{}:{}", bsp->mEntity[e].classname, e).c_str(),
+                    if (!strcmp( CB(CBSP_getKeyFromEntity(&bsp->mEntity[e], "name")), CBSP_getKeyFromEntity_FAILURE )){
+                        state->mainWorld->createDirectionalLight(fmt::format("{}:{}", bsp->mEntity[e].classname, e).c_str(),
                                                    glm::vec3(targetPos[0] * BSPSCALE, (targetPos[2] * BSPSCALE), -targetPos[1]*BSPSCALE),
                                                    new glm::vec3((float) intensity/100.0f), new glm::vec3((float) intensity/100.0f), new glm::vec3((float) intensity/100.0f));
                     } else{ // If a name is found...
-                        __target->createDirectionalLight(CBSP_getKeyFromEntity(&bsp->mEntity[e], "name"),
+                        state->mainWorld->createDirectionalLight( CB(CBSP_getKeyFromEntity(&bsp->mEntity[e], "name")),
                                                    glm::vec3(targetPos[0] * BSPSCALE, (targetPos[2] * BSPSCALE), -targetPos[1]*BSPSCALE),
                                                    new glm::vec3((float) intensity/100.0f), new glm::vec3((float) intensity/100.0f), new glm::vec3((float) intensity/100.0f));
                     }
@@ -138,14 +148,34 @@ WorldLoader::WorldLoader(const char *fileName, Shader *shader, World *__target, 
 
                 SOUND_TRIGGER:
                     // We really don't need to make a dedicated object for this
-                    triggerCallbacks mainCallback;
-                    mainCallback.triggerType = TRIGGER_SOUND;
-                    mainCallback.soundName = CBSP_getKeyFromEntity(&bsp->mEntity[e], "sound");
-                    core->addPhysicsObject(new PhysicsTrigger(CBSP_getKeyFromEntity(&bsp->mEntity[e], "name"),
+                    triggerCallback = (triggerCallbacks*) GB(new triggerCallbacks);
+                    triggerCallback->triggerType = TRIGGER_SOUND;
+                    triggerCallback->target = CB(CBSP_getKeyFromEntity(&bsp->mEntity[e], "sound"));
+                    triggerCallback->onlyOnce = !(atoi( CB(CBSP_getKeyFromEntity(&bsp->mEntity[e], "only_once"))));
+                    triggerCallback->triggered = 0;
+                    state->mainPhysics->addPhysicsObject((PhysicsTrigger*) GB(new PhysicsTrigger(
+                                                             CB(CBSP_getKeyFromEntity(&bsp->mEntity[e], "name")),
                             physx::PxVec3(targetPos[0] * BSPSCALE, (targetPos[2] * BSPSCALE), -targetPos[1]*BSPSCALE),
-                            (float) atoi(CBSP_getKeyFromEntity(&bsp->mEntity[e], "distance")),
-                            new PhysicsMaterial((0.0f), (0.0f), (0.0f), core), core,
-                            &mainCallback));
+                            (float) atoi(CB(CBSP_getKeyFromEntity(&bsp->mEntity[e], "distance"))),
+                            (PhysicsMaterial*) GB(new PhysicsMaterial((0.0f), (0.0f), (0.0f), state->mainPhysics)), state->mainPhysics,
+                            triggerCallback)));
+                    //delete triggerCallback;
+
+                continue;
+
+                LEVEL_CHANGE_TRIGGER:
+                    // We really don't need to make a dedicated object for this
+                    triggerCallback = (triggerCallbacks*) GB(new triggerCallbacks);
+                    triggerCallback->triggerType = TRIGGER_LEVEL_CHANGE;
+                    triggerCallback->target = CB(CBSP_getKeyFromEntity(&bsp->mEntity[e], "level"));
+                    triggerCallback->onlyOnce = !(atoi(std::string(CB(CBSP_getKeyFromEntity(&bsp->mEntity[e], "only_once"))).c_str()));
+                    triggerCallback->triggered = 0;
+                    state->mainPhysics->addPhysicsObject((PhysicsTrigger*) GB(new PhysicsTrigger( CB(CBSP_getKeyFromEntity(&bsp->mEntity[e], "name")),
+                            physx::PxVec3(targetPos[0] * BSPSCALE, (targetPos[2] * BSPSCALE), -targetPos[1]*BSPSCALE),
+                            (float) atoi( CB(CBSP_getKeyFromEntity(&bsp->mEntity[e], "distance")) ),
+                            (PhysicsMaterial*) GB(new PhysicsMaterial((0.0f), (0.0f), (0.0f), state->mainPhysics)), state->mainPhysics,
+                            triggerCallback)));
+                    //delete triggerCallback;
 
                 continue;
                 //END TRIGGER SPAWN
@@ -156,15 +186,13 @@ WorldLoader::WorldLoader(const char *fileName, Shader *shader, World *__target, 
             }
         }
     }
-
-    //free(bsp);
-    __target->createObject( "world2",
+    state->mainWorld->createObject( "world2",
                             glm::vec3(0.0f, 0.0f, 0.0f),
                             glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
                             glm::vec3((BSPSCALE)),
-                            fileName,
+                            state->mainArgs->getArguments()->tMap.c_str(),
                             NULL,
-                            new Material(shader, "materials/default.json"), 1, core);
+                            (Material*) (new Material(state->mainShader, "materials/default.json")), 1);
 
 }
 
@@ -172,7 +200,8 @@ void WorldLoader::update(){
 }
 
 WorldLoader::~WorldLoader(){
+    KillCB();
     if (bsp != nullptr){
-        free(bsp);
+        CBSP_Destroy(bsp);
     }
 }

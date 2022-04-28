@@ -9,10 +9,12 @@
 #include <cstdint>
 
 PhysicsMesh::PhysicsMesh(physx::PxVec3 position, std::vector<float> *vertices, RigidTypes rigidType, PhysicsMaterial *dMat, PhysicsCore *core){
-    pMainMat = dMat->getMaterial();
+    //pMainMat = dMat->getMaterial();
+    pMainMaterial = dMat;
     if (rigidType == DYNAMIC){
         pMainRigid = core->getPhysics()->createRigidDynamic(physx::PxTransform(position));
-        physx::PxTransform relativePose(physx::PxQuat(physx::PxHalfPi, physx::PxVec3(0,0,1)));
+        physx::PxTransform relativePose(physx::PxQuat(1, physx::PxVec3(0,0,0)));
+        //physx::PxTransform relativePose(physx::PxVec3(0.0f, 0.0f, 0.0f));
 
         // BEGIN MESH GEN
             physx::PxConvexMeshDesc convexDesc;
@@ -24,21 +26,30 @@ PhysicsMesh::PhysicsMesh(physx::PxVec3 position, std::vector<float> *vertices, R
             physx::PxConvexMesh* convexMesh = core->getCooking()->createConvexMesh(convexDesc, core->getPhysics()->getPhysicsInsertionCallback());
 
             pMainShape = physx::PxRigidActorExt::createExclusiveShape(*pMainRigid,
-                physx::PxConvexMeshGeometry(convexMesh), *pMainMat);
+                physx::PxConvexMeshGeometry(convexMesh), *pMainMaterial->getMaterial());
 
         // END MESH GEN
 
-        pMainShape->setLocalPose(relativePose);
+        //pMainShape->setLocalPose(relativePose);
+        if (pMainShape != NULL){
+            pMainShape->setLocalPose(relativePose);
+        }
+        else{
+            pMainRigid = NULL;
+            return;
+        }
 
         pMainRigid->setMass(dMat->getMass());
         pMainRigid->setMassSpaceInertiaTensor(physx::PxVec3(dMat->getSpaceinteriamass()));
         physx::PxRigidBodyExt::updateMassAndInertia(*pMainRigid, 5.0f);
         //scene->addActor(*dMainRigid);
+        //free(convexMesh);
+        pConvexMesh = convexMesh;
     }else{
 
         pMainRigid = (physx::PxRigidBody*) core->getPhysics()->createRigidStatic(physx::PxTransform(position));
-        physx::PxTransform relativePose(physx::PxQuat(physx::PxHalfPi, physx::PxVec3(0.0f,0.0f,0.0f)));
-
+        physx::PxTransform relativePose(physx::PxQuat(1, physx::PxVec3(0.0f,0.0f,0.0f)));
+        //physx::PxTransform relativePose(physx::PxVec3(0.0f, 0.0f, 0.0f));
         // BEGIN MESH GEN
             physx::PxConvexMeshDesc convexDesc;
             convexDesc.points.count     = (vertices->size()/3);
@@ -58,7 +69,7 @@ PhysicsMesh::PhysicsMesh(physx::PxVec3 position, std::vector<float> *vertices, R
             //physx::PxConvexMesh* convexMesh = core->getCooking()->createConvexMesh(convexDesc, core->getPhysics()->getPhysicsInsertionCallback());
 
             pMainShape = physx::PxRigidActorExt::createExclusiveShape(*pMainRigid,
-                physx::PxConvexMeshGeometry(convexMesh), *pMainMat);
+                physx::PxConvexMeshGeometry(convexMesh), *pMainMaterial->getMaterial());
 
         // END MESH GEN
         if (pMainShape != NULL){
@@ -66,15 +77,19 @@ PhysicsMesh::PhysicsMesh(physx::PxVec3 position, std::vector<float> *vertices, R
         }
         else{
             pMainRigid = NULL;
+            return;
         }
         //pMainRigid->setGlobalPose(physx::PxTransform(position, physx::PxQuat(physx::PxPi, physx::PxVec3(0.0f, 1.0f, 0.0f))));
-
+        //free(convexMesh);
+        pConvexMesh = convexMesh;
     }
+
     //dMainRigid->setMass(5.0f);
     //dMainRigid->setMassSpaceInertiaTensor(physx::PxVec3(5.0f));
 }
 PhysicsMesh::PhysicsMesh(physx::PxVec3 position, std::vector<float> *vertices, std::vector<uint32_t> *indicies, RigidTypes rigidType, PhysicsMaterial *dMat, PhysicsCore *core){
-    pMainMat = dMat->getMaterial();
+    //pMainMat = dMat->getMaterial();
+    pMainMaterial = dMat;
     if (rigidType == DYNAMIC){
         pMainRigid = core->getPhysics()->createRigidDynamic(physx::PxTransform(position));
         physx::PxTransform relativePose(physx::PxQuat(physx::PxHalfPi, physx::PxVec3(0,0,1)));
@@ -94,13 +109,15 @@ PhysicsMesh::PhysicsMesh(physx::PxVec3 position, std::vector<float> *vertices, s
             physx::PxTriangleMesh* convexMesh = core->getCooking()->createTriangleMesh(convexDesc, core->getPhysics()->getPhysicsInsertionCallback());
 
             pMainShape = physx::PxRigidActorExt::createExclusiveShape(*pMainRigid,
-                physx::PxTriangleMeshGeometry(convexMesh), *pMainMat);
+                physx::PxTriangleMeshGeometry(convexMesh), *pMainMaterial->getMaterial());
 
         // END MESH GEN
 
         pMainShape->setLocalPose(relativePose);
         physx::PxRigidBodyExt::updateMassAndInertia(*pMainRigid, 1.0f);
         //scene->addActor(*dMainRigid);
+        //free(convexMesh);
+        pTriMesh = convexMesh;
     }else{
 
         pMainRigid = (physx::PxRigidBody*) core->getPhysics()->createRigidStatic(physx::PxTransform(position));
@@ -120,14 +137,33 @@ PhysicsMesh::PhysicsMesh(physx::PxVec3 position, std::vector<float> *vertices, s
             physx::PxTriangleMesh* convexMesh = core->getCooking()->createTriangleMesh(convexDesc, core->getPhysics()->getPhysicsInsertionCallback());
 
             pMainShape = physx::PxRigidActorExt::createExclusiveShape(*pMainRigid,
-                physx::PxTriangleMeshGeometry(convexMesh), *pMainMat);
+                physx::PxTriangleMeshGeometry(convexMesh), *pMainMaterial->getMaterial());
 
         // END MESH GEN
 
         pMainShape->setLocalPose(relativePose);
+        //free(convexMesh);
+        pTriMesh = convexMesh;
     }
 }
 
 PhysicsMesh::~PhysicsMesh(){
-
+    printf("Murdering Mesh\n");
+    /*
+    if (pTriMesh){
+        pTriMesh->release();
+    }
+    if (pConvexMesh){
+        pConvexMesh->release();
+    }
+    */
+    if (pMainShape){
+        pMainShape->release();
+    }
+    if (pMainMaterial){
+        delete pMainMaterial;
+    }
+    if (pMainRigid){
+        pMainRigid->release();
+    }
 }

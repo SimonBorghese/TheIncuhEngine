@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.10)
 project(IncuhEngine VERSION 1.0)
 
 file(GLOB_RECURSE SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "src/*.cpp")
+file(GLOB_RECURSE SOURCES RELATIVE ${CMAKE_SOURCE_DIR} ${SOURCES} "IMGUI/*.cpp")
 file(GLOB_RECURSE SOURCES RELATIVE ${CMAKE_SOURCE_DIR} ${SOURCES} "include/*.hpp")
 file(GLOB_RECURSE SOURCES RELATIVE ${CMAKE_SOURCE_DIR} ${SOURCES} "include/*.h")
 
@@ -49,6 +50,7 @@ include_directories("include/thirdparty")
 include_directories("include/thirdparty/physx")
 include_directories("include/thirdparty/imgui")
 include_directories("include/IncuhEngine/BSP")
+include_directories("IMGUI")
 include_directories("/usr/include")
 
 

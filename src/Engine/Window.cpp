@@ -49,16 +49,17 @@ void APIENTRY glDebugOutput(GLenum source,
     std::cout << std::endl;
 }
 
-Window::Window(const char *title, uint32_t width, uint32_t height) : __width(width), __height(height){
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0){
+Window::Window(IncuhState *state) : __width(state->mainArgs->getArguments()->width), __height(state->mainArgs->getArguments()->height){
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0){
         printf("Failed to initalize SDL: %s\n", SDL_GetError());
     }
-    __win = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, __width, __height, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
+    __win = SDL_CreateWindow(state->mainArgs->getArguments()->title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, __width, __height, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI);
     if (__win == NULL){
         printf("Failed to create SDL Window: %s\n", SDL_GetError());
     }
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
@@ -76,7 +77,7 @@ Window::Window(const char *title, uint32_t width, uint32_t height) : __width(wid
     //SDL_SetWindowFullscreen(__win, 1);
 
     SDL_ShowCursor(SDL_ENABLE);
-    SDL_SetWindowGrab(__win, SDL_TRUE);
+    //SDL_SetWindowGrab(__win, SDL_TRUE);
     SDL_SetRelativeMouseMode(SDL_TRUE);
 
     glEnable(GL_MULTISAMPLE);
@@ -86,6 +87,15 @@ Window::Window(const char *title, uint32_t width, uint32_t height) : __width(wid
     glEnable(GL_TEXTURE_2D);
 
     glEnable(GL_DEBUG_OUTPUT);
+
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    //glFrontFace(GL_CW);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    __mainUI = new UI_Render(__win, __con);
 
 #ifndef __WIN32__
 //For some reason, this doesn't work in my Windows VM, so keeping it disabled for now
@@ -100,11 +110,12 @@ Window::Window(const char *title, uint32_t width, uint32_t height) : __width(wid
         #ifndef NDEBUG
         glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_MEDIUM, 0, nullptr, GL_TRUE);
         #else
-        glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_MEDIUM, 0, nullptr, GL_TRUE);
+        glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_HIGH, 0, nullptr, GL_TRUE);
         #endif // NDEBUG
     }
 #endif // __WIN32__
-
+    e.type = 0;
+    __mainUI->newFrame();
 }
 Window::~Window(){
   SDL_GL_DeleteContext(__con);
@@ -113,11 +124,15 @@ Window::~Window(){
 }
 
 void Window::update(){
+  __mainUI->render();
   SDL_GL_SwapWindow(__win);
   SDL_UpdateWindowSurface(__win);
-  SDL_PollEvent(&e);
+  //SDL_PollEvent(&e);
+  //ImGui_ImplSDL2_ProcessEvent(&e);
+  //ImGui_ImplSDL2_ProcessEvent(&e);
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  __mainUI->newFrame();
 }
 
 int Window::getCloseState(){
@@ -126,7 +141,13 @@ int Window::getCloseState(){
 
 std::vector<uint8_t> Window::getActiveKeys(){
   std::vector<uint8_t> keys;
-  SDL_PollEvent(&e);
+  while (SDL_PollEvent(&e))
+  {
+      //printf("X: %f Y: %f\n", (float) e.motion.x, (float) e.motion.y);
+
+      //ImGui_ImplSDL2_ProcessEvent(&e);
+      __mainUI->updateEvents(&e);
+  }
   __keys = SDL_GetKeyboardState(&__key_len);
   for (int x = 0; x<__key_len; x++){
     if (__keys[x]){
@@ -140,7 +161,9 @@ SDL_Window* Window::getSDLWindow(){
     return __win;
 }
 
-void Window::resetCursor(){SDL_WarpMouseInWindow(__win, __width/2, __height/2);}
+void Window::resetCursor(uint32_t newX, uint32_t newY){
+    SDL_WarpMouseInWindow(__win, newX, newY);
+}
 
 uint32_t Window::getWidth(){ return __width; }
 uint32_t Window::getHeight() { return __height; }

@@ -1,6 +1,7 @@
 #ifndef PHYSICS_OBJECT
 #define PHYSICS_OBJECT
 #include <physx/PxPhysicsAPI.h>
+#include <string>
 
 // A abstract class for physics objects
 
@@ -16,6 +17,7 @@ class PhysicsObject{
             if (target == NULL || pMainRigid == NULL){
                 return;
             }
+            //printf("getting 0 %f %f %f\n", pMainRigid->getGlobalPose().p.x, pMainRigid->getGlobalPose().p.y, pMainRigid->getGlobalPose().p.z);
             target[0] = pMainRigid->getGlobalPose().p.x;
             target[1] = pMainRigid->getGlobalPose().p.y;
             target[2] = pMainRigid->getGlobalPose().p.z;
@@ -34,15 +36,30 @@ class PhysicsObject{
         	if (target == NULL || pMainRigid == NULL){
         		return;
             }
-            pMainRigid->setGlobalPose(physx::PxTransform(physx::PxVec3( target[0], target[1], target[2] )));
+            //printf("Setting 0 %f %f %f\n", target[0], target[1], target[2]);
+            pMainRigid->setGlobalPose(physx::PxTransform(physx::PxVec3( target[0], target[1], target[2] ), pMainRigid->getGlobalPose().q));
        }
 
+       void setRotation(float *target) {
+            if (target == NULL || pMainRigid == NULL){
+                return;
+            }
+            //printf("Setting 0 %f %f %f\n", target[0], target[1], target[2]);
+            pMainRigid->setGlobalPose(physx::PxTransform(pMainRigid->getGlobalPose().p, physx::PxQuat( target[0], target[1], target[2], target[3] )));
+       }
+
+       void applyForce(float *direction, float force){
+            if (direction == NULL){
+                return;
+            }
+            pMainRigid->addForce(physx::PxVec3(direction[0] * force, direction[1] * force, direction[2] * force), physx::PxForceMode::eACCELERATION);
+       }
 
 
         physx::PxRigidBody *getRigidBody(){ return pMainRigid; }
         physx::PxMaterial *getMaterial() { return pMainMat; }
         physx::PxShape *getShape() { return pMainShape; }
-        void setName(const char *newName) { pMainRigid->setName(newName); name = newName; }
+        void setName(const char *newName) { pMainRigid->setName(std::string(newName).c_str()); name = newName; pMainRigid->userData = new std::string(name); }
         const char* getName() { return name; }
     protected:
         physx::PxRigidBody *pMainRigid;

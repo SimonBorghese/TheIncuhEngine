@@ -1,14 +1,17 @@
 #ifndef WORLDLOADER_H
 #define WORLDLOADER_H
+#include <GameState.h>
 #include <World.hpp>
 #include <Shader.hpp>
 #include <Camera.hpp>
+#include <Launcher/LauncherArgs.hpp>
 #include <Server/Logging.h>
 #include <CBSP/CBSP.h>
 #include <BSP/BSPMesh.hpp>
 #include <fstream>
 #include <AudioBase.hpp>
 #include <map>
+#include <vector>
 #include <functional>
 #ifndef NOEXERNLIBS
 #include <assimp/IOSystem.hpp>
@@ -33,6 +36,7 @@
 #include <stdScale.h>
 #endif
 
+
 /*
 World Loader:
     Loads vertices into World and Creates World Object
@@ -54,10 +58,36 @@ enum ENTITES_TYPES{
 class WorldLoader: public Object
 {
     public:
-        WorldLoader(const char *fileName, Shader *shader, World *__target, PhysicsCore *core, Camera *cam);
+        //WorldLoader(const char *fileName, Shader *shader, World *__target, PhysicsCore *core, Camera *cam);
+        WorldLoader(IncuhState *state);
         virtual ~WorldLoader();
 
         void update();
+
+        const char * CB(const char *inputStr){
+            if (strcmp(inputStr, CBSP_getKeyFromEntity_FAILURE) && strcmp(inputStr, CBSP_EOF_FAILURE)){
+                __stringHolder.push_back( (char*) inputStr);
+            }
+            return inputStr;
+        }
+
+        void* GB(void *inputitem){
+            if (inputitem != NULL){
+                __itemHolder.push_back(inputitem);
+            }
+            return inputitem;
+
+        }
+
+        void KillCB(){
+            for (int c = __stringHolder.size() - 1; c >= 0; c--){
+                free ( (char*) __stringHolder.at(c));
+            }
+            for (int c = __itemHolder.size() - 1; c >= 0; c--){
+                delete ( (char*) __itemHolder.at(c));
+            }
+        }
+
 
     protected:
 
@@ -65,6 +95,8 @@ class WorldLoader: public Object
         const char *__fileName;
         std::map<std::string, ENTITES_TYPES> entityMap;
         CBSP *bsp = nullptr;
+        std::vector<void*> __itemHolder;
+        std::vector<char*> __stringHolder;
 };
 
 #endif // WORLDLOADER_H

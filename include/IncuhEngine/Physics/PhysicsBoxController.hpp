@@ -13,6 +13,7 @@ class PhysicsBoxController: public PhysicsController{
         void makeConfig(physx::PxControllerManager *controllerManager);
     private:
         physx::PxBoxControllerDesc *pChrDec = nullptr;
+        PhysicsMaterial *pMaterial;
 
 };
 

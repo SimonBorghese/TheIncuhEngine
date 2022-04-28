@@ -3,12 +3,25 @@
 
 Image::Image(const char *fileName, GLenum texture_num, GLenum RGB_TYPE, int flip){
   glGenTextures(1, &texture);
-  glActiveTexture(texture_num);
+  //glActiveTexture(texture_num);
   glBindTexture(GL_TEXTURE_2D, texture);
 
 
   stbi_set_flip_vertically_on_load(flip);
-  data = stbi_load(fileName, &width, &height, &nrChannels, 3);
+  switch (RGB_TYPE){
+  case GL_RGBA:
+      data = stbi_load(fileName, &width, &height, &nrChannels, 4);
+      break;
+  case GL_RGB:
+      data = stbi_load(fileName, &width, &height, &nrChannels, 3);
+      break;
+  default:
+      data = stbi_load(fileName, &width, &height, &nrChannels, 3);
+      break;
+
+  }
+
+
   if (!data){
     if (strcmp("", fileName)){
       incuh_warning(fmt::format("Failed to load image: {}\n", fileName));
@@ -30,7 +43,7 @@ Image::Image(const char *fileName, GLenum texture_num, GLenum RGB_TYPE, int flip
 Image::Image() {}
 
 Image::~Image(){
-
+    glDeleteTextures(1, &texture);
 }
 
 GLenum Image::getImageNum(){

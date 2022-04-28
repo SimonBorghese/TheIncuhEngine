@@ -7,7 +7,7 @@ PhysicsCore::PhysicsCore(physx::PxVec3 gravity){
         printf("Error: PxCreateFoundation Failed, Line: %d\n", __LINE__);
         return;
     }
-
+    /*
     pPvd = physx::PxCreatePvd(*pFoundation);
     if (!pPvd){
         printf("Error: PxCreatePvd Failed, Line: %d\n", __LINE__);
@@ -19,9 +19,11 @@ PhysicsCore::PhysicsCore(physx::PxVec3 gravity){
         return;
     }
     pPvd->connect(*pTransport, physx::PxPvdInstrumentationFlag::eALL);
+    */
 
     // Create the physics
-    pPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *pFoundation, physx::PxTolerancesScale(), true, pPvd);
+    // Add PVD to end for PVD
+    pPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *pFoundation, physx::PxTolerancesScale(), true);
     if (pPhysics == NULL){
         printf("Failed to Create Physics, Line: %d\n", __LINE__);
         return;
@@ -75,7 +77,8 @@ PhysicsCore::PhysicsCore(physx::PxVec3 gravity){
         return;
     }
 
-    pScene->setSimulationEventCallback(new PhysicsTriggerCallback());
+    //pScene->setSimulationEventCallback(new PhysicsTriggerCallback());
+
 }
 
 PhysicsCore::~PhysicsCore() { cleanUp(); }
@@ -93,6 +96,7 @@ void PhysicsCore::simulate(float step){
 }
 
 void PhysicsCore::cleanUp(){
+    delete pScene->getSimulationEventCallback();
     pControlManager->release();
     delete pPhysDec;
     pScene->release();
@@ -100,6 +104,30 @@ void PhysicsCore::cleanUp(){
     PxCloseExtensions();
     pCooking->release();
     pPhysics->release();
+    //pPvd->disconnect();
+    //pPvd->release();
     pFoundation->release();
+}
+
+void PhysicsCore::softCleanup(){
+
+    delete pScene->getSimulationEventCallback();
+
+    pScene->flushSimulation();
+    pControlManager->release();
+    pScene->release();
+    pScene = pPhysics->createScene(*pPhysDec);
+
+    if (pScene == NULL){
+        printf("Failed to create scene\n");
+        return;
+    }
+
+    // Make our character controller manager
+    pControlManager = PxCreateControllerManager(*pScene);
+    if (!pControlManager){
+        printf("Error: PxCreateControllerManager failed, Line: %d\n", __LINE__);
+        return;
+    }
 
 }

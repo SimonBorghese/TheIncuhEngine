@@ -1,20 +1,23 @@
 #ifndef GAMESTATE_H
 #define GAMESTATE_H
-#include <Launcher/LauncherArgs.hpp>
-#include <Window.hpp>
-#include <World.hpp>
-#include <Shader.hpp>
-#include <Camera.hpp>
-#include <Bindings.hpp>
-#include <WorldLoader.hpp>
+
+namespace LArgs{
+    class LauncherArgs;
+}
+class Window;
+class Shader;
+class World;
+class Bindings;
+class Camera;
+class CubeMap;
+class WorldLoader;
+class AudioBase;
+class PhysicsCore;
+class PhysicsBoxController;
+class PhysicsCapsuleController;
+class PhysicsMaterial;
 #include <glm/glm.hpp>
-#include <AudioBase.hpp>
-#include <CubeMap.hpp>
-#include <Physics/PhysicsCore.hpp>
-#include <Physics/PhysicsBox.hpp>
-#include <Physics/PhysicsCapsuleController.hpp>
-#include <Physics/PhysicsMesh.hpp>
-#include <Physics/PhysicsBoxController.hpp>
+
 
 // Long constructors solved
 typedef struct{
@@ -34,6 +37,9 @@ typedef struct{
     PhysicsCapsuleController *mainController;
     PhysicsMaterial *basicMaterial;
 } IncuhState;
+
+// Do not enable if using with a class that exists within the state
+
 
 
 #endif // GAMESTATE_H

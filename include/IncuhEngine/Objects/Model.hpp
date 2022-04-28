@@ -129,5 +129,6 @@ protected:
 
     int oUseMeshCollider;
     n_baseNPC *oNpc = NULL;
+    std::vector<PhysicsObject*> targetMeshes;
 };
 #endif

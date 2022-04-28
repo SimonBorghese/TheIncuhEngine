@@ -11,6 +11,7 @@ class PhysicsTrigger: public PhysicsObject{
 
         virtual ~PhysicsTrigger();
     private:
+        PhysicsMaterial *pMaterial;
 
 
 };

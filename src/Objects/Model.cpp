@@ -138,7 +138,7 @@ oUseMeshCollider(useMeshCollider)
 
         std::vector<float> *targetVertices;
         std::vector<uint32_t> *targetIndices;
-        std::vector<PhysicsObject*> targetMeshes;
+        //std::vector<PhysicsObject*> targetMeshes;
         for (unsigned int m = 0; m < oScene->mNumMeshes; m++){
             tempStr = oScene->mMeshes[m]->mName.C_Str();
             if (( (strcmp(tempStr.substr(0,8).c_str(), "collider") != 0) || useMeshCollider )){
@@ -155,15 +155,22 @@ oUseMeshCollider(useMeshCollider)
                     }
                 }
                 float frictionDivider = 1.0f;
+                PhysicsMesh *targetMesh;
                 if (useMeshCollider || !dynamic){
-                    targetMeshes.push_back(new PhysicsMesh(physx::PxVec3(__pos->x, __pos->y, __pos->z), targetVertices, STATIC, new PhysicsMaterial((0.2f), (0.4f), (0.0f), core), core ));
+                    targetMesh = (new PhysicsMesh(physx::PxVec3(__pos->x, __pos->y, __pos->z), targetVertices, STATIC, new PhysicsMaterial((0.2f), (0.4f), (0.0f), core), core ));
                 }
                 else{
-                    targetMeshes.push_back(new PhysicsMesh(physx::PxVec3(__pos->x, __pos->y, __pos->z), targetVertices, DYNAMIC, new PhysicsMaterial((0.1f/frictionDivider), (0.2f/frictionDivider), (0.0f), core, oMass, oSMI), core ));
+                    targetMesh = (new PhysicsMesh(physx::PxVec3(__pos->x, __pos->y, __pos->z), targetVertices, DYNAMIC, new PhysicsMaterial((0.1f/frictionDivider), (0.2f/frictionDivider), (0.0f), core, oMass, oSMI), core ));
                 }
+                targetMesh->setName(name);
+                core->addPhysicsObject(targetMesh);
+                targetMeshes.push_back(targetMesh);
+                oMesh = targetMesh;
+                delete targetVertices;
+                delete targetIndices;
             }
         }
-
+        /*
         for (long unsigned int p = 0; p < targetMeshes.size(); p++){
             oMesh = targetMeshes.at(p);
             oMesh->setName(name);
@@ -172,13 +179,30 @@ oUseMeshCollider(useMeshCollider)
         if (targetMeshes.size() >= 1){
             oMesh = targetMeshes.at(0);
         }
+        */
     }
 }
 Model::Model(){}
 Model::~Model(){
+    //printf("Deleting a mesh\n");
+    //if (targetMeshes.size() > 2){
+        for (long int p = targetMeshes.size()-1; p >= 0; p--){
+            //printf("Deleting OWO UWU OWO: %lu\n", p);
+            if (targetMeshes.at(p) != NULL){
+                delete (PhysicsMesh*) (targetMeshes.at(p));
+            }
+        }
+    //}
+
+    for (int m = oMeshes.size() -1; m >= 0; m--){
+        delete (Mesh*) oMeshes.at(m);
+    }
     //free(scene);
-    free(oModelLoader);
+    delete __pos;
+    delete oModelLoader;
     free(oTargetHolder);
+    delete oMat;
+    delete oModel;
 
 }
 
@@ -191,6 +215,7 @@ void Model::update()
         __pos->x = oTargetHolder[0];
         __pos->y = oTargetHolder[1];
         __pos->z = oTargetHolder[2];
+        //printf("getting 1 %f %f %f\n", oTargetHolder[0], oTargetHolder[1], oTargetHolder[2]);
         oMesh->getRotation(oTargetHolder);
         oQuat.w = oTargetHolder[0];
 		oQuat.x = oTargetHolder[1];
@@ -208,6 +233,14 @@ void Model::update()
         __pos->y = 0.0f;
         __pos->z = 0.0f;
     }
+    /*
+    if (oHasCollider){
+        oTargetHolder[0] = __pos->x;
+        oTargetHolder[1] = __pos->y;
+        oTargetHolder[2] = __pos->z;
+        oMesh->setPosition(oTargetHolder);
+    }
+    */
 
 
     *oModel = glm::mat4(1.0f);
@@ -215,10 +248,7 @@ void Model::update()
     if (!oUseMeshCollider && oQuat != glm::quat(0.0f, 0.0f, 0.0f, 0.0f)){
         *oModel = glm::rotate(*oModel, glm::angle(oQuat), glm::axis(oQuat));
     }
-    //else if ( oQuat != glm::quat(0.0f, 0.0f, 0.0f, 0.0f)){
-    //    *oModel = glm::rotate(*oModel, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    //}
-    //printf("Got: %f & %f %f %f\n", glm::angle(oQuat), glm::axis(oQuat).x, glm::axis(oQuat).y, glm::axis(oQuat).z);
+
     *oModel = glm::scale(*oModel, oScale);
     oShader->setMatrix4f(oModelPos, *oModel);
     oMat->apply();

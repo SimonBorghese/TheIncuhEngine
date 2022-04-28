@@ -26,7 +26,12 @@ Light::Light(glm::vec3 pos, glm::vec3 *ambient, glm::vec3 *diffuse, glm::vec3 *s
 	__quadratic_pos = __shader->getUniformLocation(fmt::format("light[{}].quadratic",lightCount).c_str());
 }
 
-Light::~Light(){}
+Light::~Light(){
+    delete __light_ambi;
+    delete __light_diff;
+    delete __light_spec;
+    delete __pos;
+}
 
 void Light::update(){
 	// Set all of our light values for each stage

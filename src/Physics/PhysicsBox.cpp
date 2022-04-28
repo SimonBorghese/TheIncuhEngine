@@ -27,5 +27,8 @@ PhysicsBox::PhysicsBox(physx::PxVec3 position, physx::PxVec3 scale, RigidTypes r
 }
 
 PhysicsBox::~PhysicsBox(){
+    pMainMat->release();
+    pMainRigid->release();
+    pMainShape->release();
 
 }

@@ -2,23 +2,31 @@
 
 Shader::Shader(const char *vertexFile, const char *fragmentFile)
 {
-    std::ifstream *shaderV = new std::ifstream(vertexFile, std::ios::binary);
-    std::ifstream *shaderF = new std::ifstream(fragmentFile, std::ios::binary);
+    FILE *file = fopen(vertexFile, "r");
+    int fLength = 0;
+    fseek(file, 0, SEEK_END);
+    fLength = ftell(file);
+    fseek(file, 0, SEEK_SET);
+    char *vertexShaderSource = (char*) malloc(sizeof(char) * fLength + 1);
+    fread(vertexShaderSource, 1, fLength, file);
+    vertexShaderSource[fLength] = '\0';
+    fclose(file);
 
-    std::string *shaderV_str = new std::string;
-    shaderV_str->assign( (std::istreambuf_iterator<char>(*shaderV) ), (std::istreambuf_iterator<char>()    ) );
-    std::string *shaderF_str = new std::string;
-    shaderF_str->assign( (std::istreambuf_iterator<char>(*shaderF) ), (std::istreambuf_iterator<char>()    ) );
+    file = fopen(fragmentFile, "r");
+    fseek(file, 0, SEEK_END);
+    fLength = ftell(file);
+    fseek(file, 0, SEEK_SET);
+    char *fragmentShaderSource = (char*) malloc(sizeof(char) * fLength + 1);
+    fread(fragmentShaderSource, 1, fLength, file);
+    fragmentShaderSource[fLength] = '\0';
+    fclose(file);
 
     vertexShader = glCreateShader(GL_VERTEX_SHADER);
     fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     mainShader = glCreateProgram();
 
-    const char *trueVSource = shaderV_str->append("\0").c_str();
-    const char *trueFSource = shaderF_str->append("\0").c_str();
-
-    glShaderSource(vertexShader, 1, &trueVSource, NULL);
-    glShaderSource(fragmentShader, 1, &trueFSource, NULL);
+    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
 
 
     glCompileShader(vertexShader);
@@ -53,38 +61,47 @@ Shader::Shader(const char *vertexFile, const char *fragmentFile)
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 
-    delete trueVSource;
-    delete trueFSource;
-    delete (shaderF);
-    delete (shaderV);
+    free(vertexShaderSource);
+    free(fragmentShaderSource);
 }
 
 Shader::Shader(const char *vertexFile, const char *geometryFile, const char *fragmentFile){
-  std::ifstream *shaderV = new std::ifstream(vertexFile, std::ios::binary);
-  std::ifstream *shaderG = new std::ifstream(geometryFile, std::ios::binary);
-  std::ifstream *shaderF = new std::ifstream(fragmentFile, std::ios::binary);
+    FILE *file = fopen(vertexFile, "r");
+    int fLength = 0;
+    fseek(file, 0, SEEK_END);
+    fLength = ftell(file);
+    fseek(file, 0, SEEK_SET);
+    char *vertexShaderSource = (char*) malloc(sizeof(char) * fLength + 1);
+    fread(vertexShaderSource, 1, fLength, file);
+    vertexShaderSource[fLength] = '\0';
+    fclose(file);
 
-  std::string *shaderV_str = new std::string;
-  shaderV_str->assign( (std::istreambuf_iterator<char>(*shaderV) ), (std::istreambuf_iterator<char>()    ) );
+    file = fopen(geometryFile, "r");
+    fseek(file, 0, SEEK_END);
+    fLength = ftell(file);
+    fseek(file, 0, SEEK_SET);
+    char *geometryShaderSource = (char*) malloc(sizeof(char) * fLength + 1);
+    fread(geometryShaderSource, 1, fLength, file);
+    geometryShaderSource[fLength] = '\0';
+    fclose(file);
 
-  std::string *shaderG_str = new std::string;
-  shaderG_str->assign( (std::istreambuf_iterator<char>(*shaderG) ), (std::istreambuf_iterator<char>()    ) );
-
-  std::string *shaderF_str = new std::string;
-  shaderF_str->assign( (std::istreambuf_iterator<char>(*shaderF) ), (std::istreambuf_iterator<char>()    ) );
+    file = fopen(fragmentFile, "r");
+    fseek(file, 0, SEEK_END);
+    fLength = ftell(file);
+    fseek(file, 0, SEEK_SET);
+    char *fragmentShaderSource = (char*) malloc(sizeof(char) * fLength + 1);
+    fread(fragmentShaderSource, 1, fLength, file);
+    fragmentShaderSource[fLength] = '\0';
+    fclose(file);
 
   vertexShader = glCreateShader(GL_VERTEX_SHADER);
   geometryShader = glCreateShader(GL_GEOMETRY_SHADER);
   fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
   mainShader = glCreateProgram();
 
-  const char *trueVSource = shaderV_str->append("\0").c_str();
-  const char *trueGSource = shaderV_str->append("\0").c_str();
-  const char *trueFSource = shaderF_str->append("\0").c_str();
-
-  glShaderSource(vertexShader, 1, &trueVSource, NULL);
-  glShaderSource(geometryShader, 1, &trueGSource, NULL);
-  glShaderSource(fragmentShader, 1, &trueFSource, NULL);
+  glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+  glShaderSource(geometryShader, 1, &geometryShaderSource, NULL);
+  glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
 
 
   glCompileShader(vertexShader);
@@ -128,12 +145,9 @@ Shader::Shader(const char *vertexFile, const char *geometryFile, const char *fra
   glDeleteShader(geometryShader);
   glDeleteShader(fragmentShader);
 
-  delete trueVSource;
-  delete trueGSource;
-  delete trueFSource;
-  delete (shaderF);
-  delete (shaderG);
-  delete (shaderV);
+  free(vertexShaderSource);
+  free(geometryShaderSource);
+  free(fragmentShaderSource);
 
 }
 

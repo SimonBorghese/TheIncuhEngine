@@ -1,5 +1,6 @@
 #ifndef WORLD_H
 #define WORLD_H
+#include <GameState.h>
 #include <iostream>
 #include <vector>
 #include <map>
@@ -42,7 +43,8 @@
 class World
 {
 public:
-    World(Shader *shader, glm::mat4 *model, glm::mat4 *view, glm::mat4 *projection);
+    //World(Shader *shader, glm::mat4 *model, glm::mat4 *view, glm::mat4 *projection);
+    World(IncuhState *state);
     virtual ~World();
 
     glm::vec3 getGravity();
@@ -58,17 +60,19 @@ public:
 
     void addObject(Object *obj, const char *name);
 
-    Model* createObject( const char *name, glm::vec3 pos, glm::quat rot, glm::vec3 scle, const char *fileName, Image *diffuse, Material *mat = NULL, int useCollider = 0, PhysicsCore *core = NULL, int dynamic = 1);
+    Model* createObject( const char *name, glm::vec3 pos, glm::quat rot, glm::vec3 scle, const char *fileName, Image *diffuse, Material *mat = NULL, int useCollider = 0, int dynamic = 1);
 
     Light* createPointLight( const char *name, glm::vec3 pos, glm::vec3 *ambient, glm::vec3 *diffuse, glm::vec3 *specular, float const_val, float linear_val, float quadratic_val);
 
     Light* createDirectionalLight( const char *name, glm::vec3 direction, glm::vec3 *ambient, glm::vec3 *diffuse, glm::vec3 *specular);
 
-    Camera* createCamera( const char *name, glm::vec3 newCameraPos, float speed, glm::mat4 *view_mat, Window *win, PhysicsController *control, PhysicsCore *core);
+    Camera* createCamera( const char *name, glm::vec3 newCameraPos, float speed, PhysicsController *controller);
 
     void updateObjects();
 
     Object* getObjectByName(const char *name);
+
+    void destroyTheWorld();
 
 private:
     // Our shader object
@@ -91,6 +95,8 @@ private:
     #endif
 
     std::map<std::string, Object*> mWorldObjects;
+
+    IncuhState *wState;
 
 
 };

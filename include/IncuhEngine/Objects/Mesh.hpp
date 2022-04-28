@@ -30,8 +30,10 @@ class Mesh: public Object{
 
     Image *getImage();
   protected:
-    uint32_t VAO, VBO, EBO;
-    Image *oTexture;
+    uint32_t VAO = 0;
+    uint32_t VBO = 0;
+    uint32_t EBO = 0;
+    Image *oTexture = nullptr;
     uint32_t oVertices_size, oIndicesSize;
     PhysicsMesh *oMesh;
 

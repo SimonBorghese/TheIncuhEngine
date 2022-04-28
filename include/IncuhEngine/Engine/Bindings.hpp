@@ -26,7 +26,7 @@ class Bindings{
     void setFunc(uint8_t scancode,std::function<void()> func);
     void callFunc(uint8_t scancode);
   private:
-    std::map<uint8_t, std::function<void()> > __binds;
+    std::map<int16_t, std::function<void()> > __binds;
 };
 
 #endif

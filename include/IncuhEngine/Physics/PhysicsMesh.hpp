@@ -12,8 +12,10 @@ class PhysicsMesh: public PhysicsObject{
         PhysicsMesh(physx::PxVec3 position, std::vector<float> *vertices, std::vector<uint32_t> *indicies, RigidTypes rigidType, PhysicsMaterial *dMat, PhysicsCore *core);
         virtual ~PhysicsMesh();
 
-        void applyForce(float *direction, float force);
     private:
+        physx::PxTriangleMesh *pTriMesh;
+        physx::PxConvexMesh   *pConvexMesh;
+        PhysicsMaterial       *pMainMaterial;
 
 
 };

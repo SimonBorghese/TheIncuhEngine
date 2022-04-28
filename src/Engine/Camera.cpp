@@ -2,6 +2,7 @@
 
 Camera::Camera(glm::vec3 newCameraPos, float speed, Shader *shader, glm::mat4 *view_mat, Window *win, PhysicsController *controller) :
 cam_speed(speed),
+base_speed(speed),
 cameraPos(newCameraPos),
 cameraFront(glm::vec3(0.0f, 0.0f, 1.0f)),
 cameraUp(glm::vec3(0.0f, 1.0f, 0.0f)),
@@ -19,6 +20,9 @@ __controller(controller),
 stepCount(0)
 {
     __campos_loc = __shader->getUniformLocation("cameraPos");
+    if (targetForward != NULL){
+        free(targetForward);
+    }
     targetForward = (float*) malloc(sizeof(float)*3);
     targetForward[0] = 0.0f;
     targetForward[1] = FALLSPEED;
@@ -27,12 +31,13 @@ stepCount(0)
 }
 Camera::~Camera()
 {
-
+    free(targetForward);
 }
 
 void Camera::setSpeed(float speed)
 {
-    cam_speed = speed;
+    base_speed = speed;
+    cam_speed = base_speed;
 }
 
 void Camera::moveForward()
@@ -94,8 +99,9 @@ void Camera::strafeRight()
 
 void Camera::jump(){
 	if (__controller->onGround()){
-		stepCount = FALLTIME;
+        stepCount = FALLSPEED;
 	}
+    targetForward[1] = stepCount;
 }
 
 void Camera::turnLeft()
@@ -151,21 +157,34 @@ void Camera::update()
     SDL_GetMouseState(&x, &y);
 
     updateMouse((float) x, (float) y);
-    glm::vec3 newPos;
+    glm::vec3 newPos = cameraPos;
     // New pos should be assigned to the value of the rigid body
+
+    if (isRun == 0 && cam_speed == (base_speed*2)){
+        cam_speed = base_speed;
+    }
+    isRun = 0;
+
+    newPos.y += ((physx::PxCapsuleController*) __controller->getController())->getHeight();
 
 
     //*__view = glm::lookAt(newPos, newPos + cameraFront, cameraUp);
-    *__view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+    *__view = glm::lookAt(newPos, newPos + cameraFront, cameraUp);
     __shader->setVec3(__campos_loc, newPos);
     targetForward[0] = 0.0f;
-    if (stepCount > 0){
-    	targetForward[1] = -(FALLSPEED/JUMPSLOWER);
-    	stepCount--;
+    /*
+    if (stepCount != GRAVITY){
+        stepCount += GRAVITY * __deltaTime;
+        if (stepCount <= GRAVITY){
+            stepCount = GRAVITY * __deltaTime;
+        }
     }
-    else{
-    	targetForward[1] = FALLSPEED;
+    */
+    if (__controller->onGround() && stepCount != GRAVITY){
+        stepCount = GRAVITY;
     }
+    //targetForward[1] = stepCount * __deltaTime;
+    targetForward[1] = 0.0f;
     targetForward[2] = 0.0f;
     cameraFront = glm::normalize(cameraFront);
 }
@@ -206,13 +225,40 @@ float Camera::getYaw()
 
 void Camera::updateMouse(float x, float y)
 {
-    __win->resetCursor();
+    //__win->resetCursor();
+    if (firstmouse){
+        lastX = x;
+        lastY = y;
+        firstmouse = 0;
+    }
 
-    float xoffset = x - (__win->getWidth()/2);
-    float yoffset = (__win->getHeight()/2) - y;
+    float xoffset = x - lastX;
+    float yoffset = lastY - y;
+    lastX = x;
+    lastY = y;
+
+    if (x == __win->getWidth()-1){
+        lastX = 0;
+        x = 0;
+        __win->resetCursor(0, y);
+    }
+    else if (x <= 0){
+        lastX = __win->getWidth();
+        x = __win->getWidth();
+        __win->resetCursor(__win->getWidth(), y);
+    }
+    if (y == __win->getHeight()-1){
+        lastY = 0;
+        __win->resetCursor(x, 0);
+    }
+    else if (y <= 0){
+        lastY = __win->getHeight();
+        __win->resetCursor(x, __win->getHeight());
+    }
 
 
-    float sensitivity = 0.3f;
+
+    float sensitivity = 1.0f;
     xoffset *= sensitivity;
     yoffset *= sensitivity;
 
@@ -236,5 +282,12 @@ void Camera::updateMouse(float x, float y)
 
 
 void Camera::getTarget(float *target){
+    if (stepCount != GRAVITY){
+        if (stepCount >= GRAVITY){
+            stepCount += GRAVITY * __deltaTime;
+            //stepCount = GRAVITY * __deltaTime;
+        }
+    }
+    targetForward[1] = stepCount * __deltaTime;
     memcpy(target, targetForward, sizeof(float) * 3);
 }

@@ -31,6 +31,10 @@ Material::Material(Shader *shader, const char *fileName) : __shader(shader) {
 }
 
 Material::~Material(){
+    delete __ambient;
+    delete __diffuse;
+    delete __specular;
+
 
 }
 

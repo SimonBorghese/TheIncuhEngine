@@ -1,8 +1,11 @@
 #include <World.hpp>
 #include <stdio.h>
 
-World::World(Shader *shader, glm::mat4 *model, glm::mat4 *view, glm::mat4 *projection) : __shader(shader), __model(model), __view(view), __projection(projection), __lightCount(0), model_loader(nullptr) {
-}
+//World::World(Shader *shader, glm::mat4 *model, glm::mat4 *view, glm::mat4 *projection) : __shader(shader), __model(model), __view(view), __projection(projection), __lightCount(0), model_loader(nullptr) {
+//}
+
+World::World(IncuhState *state) : __shader(state->mainShader), __model(state->model), __view(state->view), __projection(state->projection),
+__lightCount(0), model_loader(nullptr), wState(state) {}
 
 World::~World(){
 
@@ -38,8 +41,8 @@ void World::addObject(Object *obj, const char *name){
 	mWorldObjects.insert(std::pair<std::string, Object*>(std::string(name), (Object*) obj));
 }
 
-Model* World::createObject( const char *name, glm::vec3 pos, glm::quat rot, glm::vec3 scle, const char *fileName, Image *diffuse, Material *mat, int useCollider, PhysicsCore *core, int dynamic){
-    Model *newModel = new Model(name, pos, rot, scle, fileName, __shader, diffuse, mat, useCollider, core, dynamic);
+Model* World::createObject( const char *name, glm::vec3 pos, glm::quat rot, glm::vec3 scle, const char *fileName, Image *diffuse, Material *mat, int useCollider, int dynamic){
+    Model *newModel = new Model(name, pos, rot, scle, fileName, __shader, diffuse, mat, useCollider, wState->mainPhysics, dynamic);
 	__world_objects.push_back((Object*) newModel);
 	mWorldObjects.insert(std::pair<std::string, Object*>(std::string(name), (Object*) newModel));
 	return newModel;
@@ -59,17 +62,17 @@ Light* World::createDirectionalLight( const char *name, glm::vec3 direction, glm
 	return newLight;
 }
 
-Camera* World::createCamera( const char *name, glm::vec3 newCameraPos, float speed, glm::mat4 *view_mat, Window *win, PhysicsController *control, PhysicsCore *core){
-    Camera *newCam = new Camera(newCameraPos, speed, __shader, view_mat, win, control);
+Camera* World::createCamera( const char *name, glm::vec3 newCameraPos, float speed, PhysicsController *controller){
+    Camera *newCam = new Camera(newCameraPos, speed, __shader, wState->view, wState->mainWindow, controller);
     __world_objects.push_back((Object*) newCam);
     mWorldObjects.insert(std::pair<std::string, Object*>(std::string(name), (Object*) newCam));
     float currentPos[3];
     currentPos[0] = newCameraPos.x;
     currentPos[1] = newCameraPos.y;
     currentPos[2] = newCameraPos.z;
-    core->addPhysicsController(control, currentPos);
+    wState->mainPhysics->addPhysicsController(controller, currentPos);
 
-    control->setName(name);
+    controller->setName(name);
     return newCam;
 }
 
@@ -93,6 +96,12 @@ Object* World::getObjectByName(const char *name){
 	    }
 	}
 	incuh_warning(fmt::format("Unable to locate object name: {}\n", name).c_str());
-	return NULL;
+    return NULL;
+}
 
+void World::destroyTheWorld(){
+    for (int o = __world_objects.size()-1; o >= 0; o--){
+        delete __world_objects.at(o);
+    }
+    __world_objects.clear();
 }

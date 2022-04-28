@@ -6,6 +6,7 @@
 #include <Shader.hpp>
 #include <Object.hpp>
 #include <Window.hpp>
+#include <stdScale.h>
 #ifndef NOEXERNLIBS
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -13,10 +14,11 @@
 #include <Physics/PhysicsController.hpp>
 #endif
 
-#define FALLSPEED -0.042f
+#define GRAVITY -9.81f * 1.0f
+#define FALLSPEED 5.0f
 #define FALLTIME 100
 #define JUMPSLOWER 1.4
-#define CAM_TURN_SPEED 5
+#define CAM_TURN_SPEED 50
 
 class Camera: public Object{
   public:
@@ -24,6 +26,14 @@ class Camera: public Object{
     virtual ~Camera();
 
     void setSpeed(float speed);
+    float getSpeed() { return base_speed; }
+    void run()
+    {
+        isRun = 1;
+        if (cam_speed != base_speed*2){
+            cam_speed = base_speed * 2;
+        }
+    }
 
     void moveForward();
     void moveBackward();
@@ -59,6 +69,7 @@ class Camera: public Object{
 
   private:
     float cam_speed;
+    float base_speed;
 
     //Basic Camera values
     glm::vec3 cameraPos;
@@ -87,16 +98,20 @@ class Camera: public Object{
     float deltaTime = 0.0f;	// time between current frame and last frame
     float lastFrame = 0.0f;
 
-    float lastX, lastY;
+    float lastX = 0.0f;
+    float lastY = 0.0f;
+    short firstmouse = 1;
 
     Window *__win;
 
     //float gravity;
-    float *targetForward;
+    float *targetForward = nullptr;
 
     PhysicsController *__controller;
 
-    uint32_t stepCount;
+    float stepCount = GRAVITY;
+
+    int isRun = 0;
 };
 
 #endif

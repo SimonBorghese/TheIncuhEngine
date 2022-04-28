@@ -147,5 +147,6 @@ void main(){
 		//result += vec4(i/lightCount);
 	}
 
-	FragColor = result * brightness;
+        FragColor = (result * brightness);
+        //FragColor = vec4(cameraPos, 0.5f);
 }

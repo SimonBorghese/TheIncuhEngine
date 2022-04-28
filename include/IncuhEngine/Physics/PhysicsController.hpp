@@ -18,6 +18,8 @@ class PhysicsController{
             target[0] = pMainController->getPosition().x;
             target[1] = pMainController->getPosition().y;
             target[2] = pMainController->getPosition().z;
+
+
         }
 
         void setController(physx::PxController *newController) { pMainController = newController; }
@@ -54,7 +56,7 @@ class PhysicsController{
         physx::PxController *pMainController;
         physx::PxControllerFilters pControlFilter;
 
-        uint32_t pLastTime;
+        uint32_t pLastTime = 0;
 };
 
 #endif

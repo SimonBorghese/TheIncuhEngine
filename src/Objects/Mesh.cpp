@@ -78,7 +78,18 @@ Mesh::Mesh(aiMesh *mesh, aiMaterial *mat, const char *modelName, glm::vec3 *scal
 Mesh::Mesh(){}
 
 Mesh::~Mesh(){
-
+    if (VAO != 0){
+        glDeleteVertexArrays(1, &VAO);
+    }
+    if (VBO != 0){
+        glDeleteBuffers(1, &VBO);
+    }
+    if (EBO != 0){
+        glDeleteBuffers(1, &EBO);
+    }
+    if (oTexture){
+        delete oTexture;
+    }
 }
 
 void Mesh::update(){

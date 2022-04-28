@@ -1,6 +1,6 @@
 #include <Physics/PhysicsTriggerCallback.hpp>
 
-PhysicsTriggerCallback::PhysicsTriggerCallback()
+PhysicsTriggerCallback::PhysicsTriggerCallback(IncuhState *state, CallbackFunctions callbacks) : pFunctions(callbacks), tState(state)
 {
     //ctor
 }
@@ -19,13 +19,29 @@ void PhysicsTriggerCallback::onTrigger(PxTriggerPair* pairs, PxU32 count){
         else{
             printf("No, not amogus\n");
         }
-        switch ( ((triggerCallbacks*)pairs->triggerActor[c].userData)->triggerType ){
+        pCallback = (triggerCallbacks*)pairs->triggerActor[c].userData;
+        // If, this was ever NULL
+        assert(pCallback == NULL);
+
+        if (pCallback->onlyOnce != 1 || pCallback->triggered == 0){
+            switch ( pCallback->triggerType ){
             case TRIGGER_SOUND:
-                printf("Playing sound: %s\n", ((triggerCallbacks*)pairs->triggerActor[c].userData)->soundName);
+                printf("Playing sound: %s\n", pCallback->target);
+                tState->mainAudio->playSoundGlobal(fmt::format("music/{}.wav", pCallback->target).c_str(), 0);
+                pCallback->triggered = 1;
+                break;
+            case TRIGGER_LEVEL_CHANGE:
+                //pAudio->playSoundGlobal(fmt::format("music/{}.wav", pCallback->target).c_str(), 0);
+                printf("It best be time to switch levels\n");
+                pCallback->triggered = 1;
+                pFunctions.levelChange(std::string(pCallback->target));
+
                 break;
             default:
-                incuh_error(fmt::format("Unidentified Trigger Type: {}\n", ((triggerCallbacks*)pairs->triggerActor[c].userData)->triggerType).c_str());
+                incuh_error(fmt::format("Unidentified Trigger Type: {}\n", pCallback->triggerType).c_str());
                 break;
+            }
         }
+        //free(pCallback);
     }
 }
