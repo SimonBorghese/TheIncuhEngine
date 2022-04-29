@@ -25,8 +25,10 @@ class Bindings{
 
     void setFunc(uint8_t scancode,std::function<void()> func);
     void callFunc(uint8_t scancode);
+    void callUpFunc(uint8_t scancode, std::function<void()> func);
   private:
     std::map<int16_t, std::function<void()> > __binds;
+    SDL_Event e;
 };
 
 #endif

@@ -58,6 +58,9 @@ float posHolder[3];
 
 CallbackFunctions mainFuncs;
 
+int bound = 0;
+PhysicsPointer *boundTo;
+
 void changeMap();
 
 std::string newLevel;
@@ -89,6 +92,27 @@ void quit(){
     exit(0);
 }
 
+void pickUp(){
+    if (bound == 0){
+    float pos[3] = { mainState.mainCamera->getPos().x + mainState.mainCamera->getForward().x * 2, mainState.mainCamera->getPos().y + mainState.mainCamera->getForward().y  * 2, mainState.mainCamera->getPos().z + mainState.mainCamera->getForward().z * 2 };
+    float dir[3] = {mainState.mainCamera->getForward().x, mainState.mainCamera->getForward().y, mainState.mainCamera->getForward().z };
+    pos[1] += 1.5f;
+
+    if (mainState.mainPhysics->rayCast(pos, dir, 10.0f) != NULL) {
+
+        boundTo = mainState.mainPhysics->rayCast(pos, dir, 10.0f);
+        boundTo->getPosition(dir);
+        printf("Found Piss: %f %f %f & offset %f %f %f\n", dir[0], dir[1], dir[2], pos[0] - dir[0], pos[1] - dir[1], pos[2] - dir[2]);
+        bound = 1;
+    }
+    }
+    else{
+        bound = 0;
+        boundTo = NULL;
+    }
+
+}
+
 
 void setupBinds(){
   mainState.mainBindings->setFunc(SDL_SCANCODE_W, std::bind(&Camera::moveForward, mainState.mainCamera));
@@ -101,6 +125,7 @@ void setupBinds(){
   mainState.mainBindings->setFunc(SDL_SCANCODE_LEFT, std::bind(&Camera::turnLeft, mainState.mainCamera));
   mainState.mainBindings->setFunc(SDL_SCANCODE_RIGHT, std::bind(&Camera::turnRight, mainState.mainCamera));
   mainState.mainBindings->setFunc(SDL_SCANCODE_ESCAPE, quit);
+  mainState.mainBindings->setFunc(SDL_SCANCODE_E, pickUp);
   mainState.mainBindings->setFunc(SDL_SCANCODE_SPACE, std::bind(&Camera::jump, mainState.mainCamera));
   mainState.mainBindings->setFunc(SDL_SCANCODE_LSHIFT, std::bind(&Camera::run, mainState.mainCamera));
   //mainState.mainBindings->setFunc(SDL_SCANCODE_1, changeMap);
@@ -225,6 +250,8 @@ int main(int argc, char **argv) {
 
     Image cursor("data/textures/cursor.png", GL_TEXTURE12, GL_RGBA, 1);
 
+    //float offset[3];
+
     while (!mainState.mainWindow->getCloseState()){
 
         // BEGIN NEW FRAME
@@ -268,11 +295,14 @@ int main(int argc, char **argv) {
 
         printf("Pre Camera Pos: %f %f %f\n", mainState.mainCamera->getPos().x, mainState.mainCamera->getPos().y, mainState.mainCamera->getPos().z);
 
-        float pos[3] = { mainState.mainCamera->getPos().x + mainState.mainCamera->getForward().x * 2, mainState.mainCamera->getPos().y + mainState.mainCamera->getForward().y  * 2, mainState.mainCamera->getPos().z + mainState.mainCamera->getForward().z * 2 };
-        float dir[3] = {mainState.mainCamera->getForward().x, mainState.mainCamera->getForward().y, mainState.mainCamera->getForward().z };
-        pos[1] += 1.5f;
-
-        mainState.mainPhysics->rayCast(pos, dir, 10.0f);
+        if (bound){
+            float target2[3];
+            //mainState.mainCamera->getPos();
+            target2[0] = mainState.mainCamera->getPos().x + (mainState.mainCamera->getForward().x*3);
+            target2[1] = mainState.mainCamera->getPos().y + (mainState.mainCamera->getForward().y*3) + 1.5f;
+            target2[2] = mainState.mainCamera->getPos().z + (mainState.mainCamera->getForward().z*3);
+            boundTo->setPosition(target2);
+        }
 
 
         mainState.mainShader->useMain();

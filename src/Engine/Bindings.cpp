@@ -15,3 +15,16 @@ void Bindings::callFunc(uint8_t scancode){
     (__binds.at(scancode))();
   }
 }
+
+
+void Bindings::callUpFunc(uint8_t scancode, std::function<void()> func){
+   SDL_PollEvent(&e);
+        if (e.type == SDL_KEYDOWN){
+            printf("Amogus2\n");
+            if (e.key.keysym.scancode == scancode){
+                printf("Amogus\n");
+                func();
+            }
+        }
+
+}

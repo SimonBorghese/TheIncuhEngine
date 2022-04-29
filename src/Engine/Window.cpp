@@ -147,6 +147,7 @@ std::vector<uint8_t> Window::getActiveKeys(){
 
       //ImGui_ImplSDL2_ProcessEvent(&e);
       __mainUI->updateEvents(&e);
+
   }
   __keys = SDL_GetKeyboardState(&__key_len);
   for (int x = 0; x<__key_len; x++){

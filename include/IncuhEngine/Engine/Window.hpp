@@ -24,6 +24,8 @@ class Window{
     SDL_Window* getSDLWindow();
     SDL_GLContext getGLContext() { return __con; }
 
+    SDL_Event getEvent() { return e; }
+
     void resetCursor(uint32_t newX = 0, uint32_t newY = 0);
 
     //void captureMouse();
