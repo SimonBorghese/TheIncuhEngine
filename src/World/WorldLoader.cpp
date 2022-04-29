@@ -8,10 +8,10 @@ WorldLoader::WorldLoader(IncuhState *state){
 
     bsp = CBSP_loadBSP(levelFile.c_str());
     float targetPos[3] = {0.0f, 0.0f, 0.0f};
-    entityMap.insert(std::pair(std::string("prop"), PROP));
-    entityMap.insert(std::pair(std::string("light"), LIGHT));
-    entityMap.insert(std::pair(std::string("sun"), SUN));
-    entityMap.insert(std::pair(std::string("trigger"), TRIGGER));
+    entityMap.insert(std::make_pair(std::string("prop"), PROP));
+    entityMap.insert(std::make_pair(std::string ("light"), LIGHT));
+    entityMap.insert(std::make_pair(std::string ("sun"), SUN));
+    entityMap.insert(std::make_pair(std::string ("trigger"), TRIGGER));
     for (int e = 0; e < bsp->nEntityCount; e++){
             incuh_info(fmt::format("found entity: {}\n", bsp->mEntity[e].classname));
 

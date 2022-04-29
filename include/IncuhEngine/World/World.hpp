@@ -79,7 +79,7 @@ private:
     Shader *__shader;
 
     // Our model, view, and projection matrices
-    glm::mat4 *__model, *__view, *__projection;
+    glm::mat4 *__view, *__projection;
 
     // The Uniform locations of these matrices
     uint32_t __model_loc, __view_loc, __projection_loc;
@@ -90,8 +90,8 @@ private:
     uint32_t __lightCount;
     uint32_t __lightCount_loc;
     #ifndef NOEXERNLIBS
-    const aiScene *mMainWorld;
-    Assimp::Importer *model_loader;
+    //const aiScene *mMainWorld;
+    //Assimp::Importer *model_loader;
     #endif
 
     std::map<std::string, Object*> mWorldObjects;

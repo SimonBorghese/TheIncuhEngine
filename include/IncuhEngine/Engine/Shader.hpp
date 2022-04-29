@@ -34,7 +34,8 @@ class Shader
     protected:
       unsigned int mainShader;
     private:
-        unsigned int vertexShader, fragmentShader, geometryShader, computeShader;
+        unsigned int vertexShader, fragmentShader, geometryShader;
+        //unsigned int computerShader;
 };
 
 #endif // SHADER_HPP

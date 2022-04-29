@@ -92,7 +92,7 @@ class WorldLoader: public Object
     protected:
 
     private:
-        const char *__fileName;
+        //const char *__fileName;
         std::map<std::string, ENTITES_TYPES> entityMap;
         CBSP *bsp = nullptr;
         std::vector<void*> __itemHolder;

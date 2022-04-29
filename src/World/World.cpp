@@ -4,8 +4,8 @@
 //World::World(Shader *shader, glm::mat4 *model, glm::mat4 *view, glm::mat4 *projection) : __shader(shader), __model(model), __view(view), __projection(projection), __lightCount(0), model_loader(nullptr) {
 //}
 
-World::World(IncuhState *state) : __shader(state->mainShader), __model(state->model), __view(state->view), __projection(state->projection),
-__lightCount(0), model_loader(nullptr), wState(state) {}
+World::World(IncuhState *state) : __shader(state->mainShader), __view(state->view), __projection(state->projection),
+__lightCount(0), wState(state) {}
 
 World::~World(){
 

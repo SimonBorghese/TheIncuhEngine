@@ -25,15 +25,15 @@ class GameMain{
         void gameClose();
     private:
         IncuhState *gState;
-        PhysicsBoxController *controller;
+        //PhysicsBoxController *controller;
 
-        Light *playerLight;
-        Model *box;
-        n_baseNPC *npc;
+        //Light *playerLight;
+        //Model *box;
+        //n_baseNPC *npc;
 
-        glm::vec3 oldpos;
+        //glm::vec3 oldpos;
 
-        PhysicsBox *box22;
+        //PhysicsBox *box22;
 
 };
 

@@ -31,7 +31,7 @@ class Light: public Object{
     uint32_t __pos__pos, __ambient_pos, __diffuse_pos, __specular_pos, __const_pos, __linear_pos, __quadratic_pos;
 
 		// Stores vector info
-    glm::vec3 *__light_pos;
+    //glm::vec3 *__light_pos;
 
 		// Store our light info for each pass
 		glm::vec3 *__light_ambi, *__light_diff, *__light_spec;

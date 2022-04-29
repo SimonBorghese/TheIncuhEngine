@@ -11,7 +11,7 @@ BSPFace::BSPFace(CBSP *bspFile, uint32_t face, uint32_t VBO)
 
     oIndicesSize = indices.size() * sizeof(uint32_t);
 
-    if (bspFile->mTextures[bspFile->mFaces[face].texture].name != NULL){
+    if (strcmp(bspFile->mTextures[bspFile->mFaces[face].texture].name, "") != 0){
 
         //mat->GetTexture(aiTextureType_DIFFUSE, 0, &tex_loc);
         std::string base_filename = bspFile->mTextures[bspFile->mFaces[face].texture].name;

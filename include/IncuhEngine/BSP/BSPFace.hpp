@@ -23,8 +23,8 @@ class BSPFace
     private:
         uint32_t VAO, EBO;
         Image *oTexture;
-        uint32_t oVertices_size, oIndicesSize;
-        PhysicsMesh *oMesh;
+        uint32_t oIndicesSize;
+        //PhysicsMesh *oMesh;
 };
 
 #endif // BSPFACE_HPP

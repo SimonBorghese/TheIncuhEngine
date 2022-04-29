@@ -41,6 +41,10 @@ target_link_libraries(IncuhEngine PhysX_static_64 PhysXCharacterKinematic_static
 target_link_libraries(IncuhEngine fmt)
 target_link_libraries(IncuhEngine asound)
 target_link_libraries(IncuhEngine soloud)
+target_link_libraries(IncuhEngine m)
+target_link_libraries(IncuhEngine dl)
+
+
 
 include_directories("include/IncuhEngine")
 include_directories("include/IncuhEngine/World")
