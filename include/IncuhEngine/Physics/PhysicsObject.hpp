@@ -21,6 +21,7 @@ class PhysicsObject{
             target[0] = pMainRigid->getGlobalPose().p.x;
             target[1] = pMainRigid->getGlobalPose().p.y;
             target[2] = pMainRigid->getGlobalPose().p.z;
+
         }
 
         void getRotation(float *target){
@@ -46,6 +47,7 @@ class PhysicsObject{
             }
             //printf("Setting 0 %f %f %f\n", target[0], target[1], target[2]);
             pMainRigid->setGlobalPose(physx::PxTransform(pMainRigid->getGlobalPose().p, physx::PxQuat( target[0], target[1], target[2], target[3] )));
+
        }
 
        void applyForce(float *direction, float force){

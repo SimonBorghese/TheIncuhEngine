@@ -8,6 +8,7 @@
 #include <iostream>
 #include <vector>
 #include <Overlay/UI_Render.hpp>
+#include <Bindings.hpp>
 /*
 Purpose of this code is to provide code for Window creation and key call back
 */
@@ -43,6 +44,8 @@ class Window{
     const uint8_t *__keys;
     int __key_len;
     UI_Render *__mainUI;
+
+    IncuhState *mainState;
 };
 
 

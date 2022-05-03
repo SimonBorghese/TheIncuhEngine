@@ -102,7 +102,7 @@ void pickUp(){
 
         boundTo = mainState.mainPhysics->rayCast(pos, dir, 10.0f);
         boundTo->getPosition(dir);
-        printf("Found Piss: %f %f %f & offset %f %f %f\n", dir[0], dir[1], dir[2], pos[0] - dir[0], pos[1] - dir[1], pos[2] - dir[2]);
+        //printf("Found Piss: %f %f %f & offset %f %f %f\n", dir[0], dir[1], dir[2], pos[0] - dir[0], pos[1] - dir[1], pos[2] - dir[2]);
         bound = 1;
     }
     }
@@ -115,19 +115,19 @@ void pickUp(){
 
 
 void setupBinds(){
-  mainState.mainBindings->setFunc(SDL_SCANCODE_W, std::bind(&Camera::moveForward, mainState.mainCamera));
-  mainState.mainBindings->setFunc(SDL_SCANCODE_S, std::bind(&Camera::moveBackward, mainState.mainCamera));
-  mainState.mainBindings->setFunc(SDL_SCANCODE_A, std::bind(&Camera::strafeLeft, mainState.mainCamera));
-  mainState.mainBindings->setFunc(SDL_SCANCODE_D, std::bind(&Camera::strafeRight, mainState.mainCamera));
+  mainState.mainBindings->setDownFunc(SDL_SCANCODE_W, std::bind(&Camera::moveForward, mainState.mainCamera));
+  mainState.mainBindings->setDownFunc(SDL_SCANCODE_S, std::bind(&Camera::moveBackward, mainState.mainCamera));
+  mainState.mainBindings->setDownFunc(SDL_SCANCODE_A, std::bind(&Camera::strafeLeft, mainState.mainCamera));
+  mainState.mainBindings->setDownFunc(SDL_SCANCODE_D, std::bind(&Camera::strafeRight, mainState.mainCamera));
 
-  mainState.mainBindings->setFunc(SDL_SCANCODE_UP, std::bind(&Camera::moveUp, mainState.mainCamera));
-  mainState.mainBindings->setFunc(SDL_SCANCODE_DOWN, std::bind(&Camera::moveDown, mainState.mainCamera));
-  mainState.mainBindings->setFunc(SDL_SCANCODE_LEFT, std::bind(&Camera::turnLeft, mainState.mainCamera));
-  mainState.mainBindings->setFunc(SDL_SCANCODE_RIGHT, std::bind(&Camera::turnRight, mainState.mainCamera));
-  mainState.mainBindings->setFunc(SDL_SCANCODE_ESCAPE, quit);
-  mainState.mainBindings->setFunc(SDL_SCANCODE_E, pickUp);
-  mainState.mainBindings->setFunc(SDL_SCANCODE_SPACE, std::bind(&Camera::jump, mainState.mainCamera));
-  mainState.mainBindings->setFunc(SDL_SCANCODE_LSHIFT, std::bind(&Camera::run, mainState.mainCamera));
+  mainState.mainBindings->setDownFunc(SDL_SCANCODE_UP, std::bind(&Camera::moveUp, mainState.mainCamera));
+  mainState.mainBindings->setDownFunc(SDL_SCANCODE_DOWN, std::bind(&Camera::moveDown, mainState.mainCamera));
+  mainState.mainBindings->setDownFunc(SDL_SCANCODE_LEFT, std::bind(&Camera::turnLeft, mainState.mainCamera));
+  mainState.mainBindings->setDownFunc(SDL_SCANCODE_RIGHT, std::bind(&Camera::turnRight, mainState.mainCamera));
+  mainState.mainBindings->setUpFunc(SDL_SCANCODE_ESCAPE, quit);
+  mainState.mainBindings->setUpFunc(SDL_SCANCODE_E, pickUp);
+  mainState.mainBindings->setUpFunc(SDL_SCANCODE_SPACE, std::bind(&Camera::jump, mainState.mainCamera));
+  mainState.mainBindings->setDownFunc(SDL_SCANCODE_LSHIFT, std::bind(&Camera::run, mainState.mainCamera));
   //mainState.mainBindings->setFunc(SDL_SCANCODE_1, changeMap);
 }
 
@@ -286,14 +286,14 @@ int main(int argc, char **argv) {
 
 
         keys = mainState.mainWindow->getActiveKeys();
-        for (unsigned int k = 0; k<keys.size(); k++)
-        {
-            mainState.mainBindings->callFunc(keys.at(k));
-        }
+        //for (unsigned int k = 0; k<keys.size(); k++)
+        //{
+        //    mainState.mainBindings->callFunc(keys.at(k));
+        //}
         mainState.mainCamera->getTarget(posHolder);
         mainState.mainController->move(posHolder);
 
-        printf("Pre Camera Pos: %f %f %f\n", mainState.mainCamera->getPos().x, mainState.mainCamera->getPos().y, mainState.mainCamera->getPos().z);
+        //printf("Pre Camera Pos: %f %f %f\n", mainState.mainCamera->getPos().x, mainState.mainCamera->getPos().y, mainState.mainCamera->getPos().z);
 
         if (bound){
             float target2[3];

@@ -23,12 +23,13 @@ class Bindings{
     Bindings();
     virtual ~Bindings();
 
-    void setFunc(uint8_t scancode,std::function<void()> func);
-    void callFunc(uint8_t scancode);
-    void callUpFunc(uint8_t scancode, std::function<void()> func);
+    void setUpFunc(uint8_t scancode,std::function<void()> func);
+    void setDownFunc(uint8_t scancode,std::function<void()> func);
+    void callBackDown(uint8_t scancode);
+    void callBackUp(uint8_t scancode);
   private:
-    std::map<int16_t, std::function<void()> > __binds;
-    SDL_Event e;
+    std::map<int16_t, std::function<void()> > __upbinds;
+    std::map<int16_t, std::function<void()> > __downbinds;
 };
 
 #endif
