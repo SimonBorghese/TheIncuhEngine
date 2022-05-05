@@ -8,6 +8,10 @@
 #include <GameState.h>
 #include <NPC/n_baseNPC.hpp>
 #include <Physics/PhysicsBox.hpp>
+#include <vector>
+#include <Game/GameObject.hpp>
+#include <Game/GameTransform.hpp>
+#include <Game/g_goodObject.hpp>
 
 typedef struct{
     World   *currentWorld;
@@ -25,15 +29,9 @@ class GameMain{
         void gameClose();
     private:
         IncuhState *gState;
-        //PhysicsBoxController *controller;
+        std::vector<Incuh::GameObject*> gameObjects;
 
-        //Light *playerLight;
-        //Model *box;
-        //n_baseNPC *npc;
-
-        //glm::vec3 oldpos;
-
-        //PhysicsBox *box22;
+        Incuh::g_goodObject *good;
 
 };
 

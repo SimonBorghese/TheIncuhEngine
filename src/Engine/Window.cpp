@@ -143,25 +143,16 @@ std::vector<uint8_t> Window::getActiveKeys(){
   std::vector<uint8_t> keys;
   while (SDL_PollEvent(&e))
   {
-      //printf("X: %f Y: %f\n", (float) e.motion.x, (float) e.motion.y);
-
-      //ImGui_ImplSDL2_ProcessEvent(&e);
 
       __mainUI->updateEvents(&e);
       if (e.type == SDL_KEYUP) {
           mainState->mainBindings->callBackUp(e.key.keysym.scancode);
       }
-      //if (e.type == SDL_KEYDOWN) {
-      //    mainState->mainBindings->callBackDown(e.key.keysym.scancode);
-      //}
-
-
 
   }
   __keys = SDL_GetKeyboardState(&__key_len);
   for (int x = 0; x<__key_len; x++){
     if (__keys[x]){
-      //keys.push_back(x);
       mainState->mainBindings->callBackDown(x);
     }
   }
