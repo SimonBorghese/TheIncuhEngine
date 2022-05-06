@@ -76,23 +76,6 @@ oUseMeshCollider(useMeshCollider)
     std::string tempStr = "";
 
     // We must iterate through all our meshes
-    incuh_info(fmt::format("Found: {} meshes in {}\n", oScene->mNumMeshes, fileName));
-    for (unsigned int m = 0; m < oScene->mNumMeshes; m++)
-    {
-        tempStr = oScene->mMeshes[m]->mName.C_Str();
-        incuh_info(fmt::format("Got: {} Valid: {} {} \n", tempStr.c_str(), strcmp(tempStr.substr(0,8).c_str(), "collider"), strcmp(tempStr.substr(0,3).c_str(), "ent")));
-        if (strcmp(tempStr.substr(0,8).c_str(), "collider") != 0){
-            if (oDiffuse == NULL)
-            {
-                oMeshes.push_back(new Mesh(oScene->mMeshes[m], oScene->mMaterials[oScene->mMeshes[m]->mMaterialIndex], oModelName, &scle));
-            }
-            else
-            {
-                oMeshes.push_back(new Mesh(oScene->mMeshes[m], NULL, oModelName, &scle));
-            }
-        }
-    }
-
 
 
 
@@ -118,6 +101,10 @@ oUseMeshCollider(useMeshCollider)
         oQuat.x += (float) basefile["rotation"]["x"];
         oQuat.y += (float) basefile["rotation"]["y"];
         oQuat.z += (float) basefile["rotation"]["z"];
+
+        scle.x *= (float) basefile["scale"]["x"];
+        scle.y *= (float) basefile["scale"]["y"];
+        scle.z *= (float) basefile["scale"]["z"];
         try{
             oHasCollider = (int) basefile["HasCollision"];
             oMass = (float) basefile["mass"];
@@ -131,6 +118,24 @@ oUseMeshCollider(useMeshCollider)
     else{
         oHasCollider = 1;
     }
+
+    incuh_info(fmt::format("Found: {} meshes in {}\n", oScene->mNumMeshes, fileName));
+    for (unsigned int m = 0; m < oScene->mNumMeshes; m++)
+    {
+        tempStr = oScene->mMeshes[m]->mName.C_Str();
+        incuh_info(fmt::format("Got: {} Valid: {} {} \n", tempStr.c_str(), strcmp(tempStr.substr(0,8).c_str(), "collider"), strcmp(tempStr.substr(0,3).c_str(), "ent")));
+        if (strcmp(tempStr.substr(0,8).c_str(), "collider") != 0){
+            if (oDiffuse == NULL)
+            {
+                oMeshes.push_back(new Mesh(oScene->mMeshes[m], oScene->mMaterials[oScene->mMeshes[m]->mMaterialIndex], oModelName, &scle));
+            }
+            else
+            {
+                oMeshes.push_back(new Mesh(oScene->mMeshes[m], NULL, oModelName, &scle));
+            }
+        }
+    }
+
 
 
     if (oHasCollider){

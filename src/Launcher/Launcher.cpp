@@ -85,7 +85,7 @@ void quit(){
 
     //delete mainState.basicMaterial;
     delete mainState.mainController;
-    delete mainState.mainBindings;
+    //delete mainState.mainBindings;
     delete mainState.mainLoader;
 
     delete mainState.mainPhysics;
@@ -94,13 +94,15 @@ void quit(){
 
 void pickUp(){
     if (bound == 0){
-    float pos[3] = { mainState.mainCamera->getPos().x + mainState.mainCamera->getForward().x * 2, mainState.mainCamera->getPos().y + mainState.mainCamera->getForward().y  * 2, mainState.mainCamera->getPos().z + mainState.mainCamera->getForward().z * 2 };
+        int multiplier = 3;
+        float length = 20.0f;
+    float pos[3] = { mainState.mainCamera->getPos().x + mainState.mainCamera->getForward().x * multiplier, mainState.mainCamera->getPos().y + mainState.mainCamera->getForward().y  * multiplier, mainState.mainCamera->getPos().z + mainState.mainCamera->getForward().z * multiplier};
     float dir[3] = {mainState.mainCamera->getForward().x, mainState.mainCamera->getForward().y, mainState.mainCamera->getForward().z };
     pos[1] += 1.5f;
 
-    if (mainState.mainPhysics->rayCast(pos, dir, 10.0f) != NULL) {
+    if (mainState.mainPhysics->rayCast(pos, dir, length) != NULL) {
 
-        boundTo = mainState.mainPhysics->rayCast(pos, dir, 10.0f);
+        boundTo = mainState.mainPhysics->rayCast(pos, dir, length);
         boundTo->getPosition(dir);
         //printf("Found Piss: %f %f %f & offset %f %f %f\n", dir[0], dir[1], dir[2], pos[0] - dir[0], pos[1] - dir[1], pos[2] - dir[2]);
         bound = 1;
@@ -115,20 +117,20 @@ void pickUp(){
 
 
 void setupBinds(){
-  mainState.mainBindings->setDownFunc(SDL_SCANCODE_W, std::bind(&Camera::moveForward, mainState.mainCamera));
-  mainState.mainBindings->setDownFunc(SDL_SCANCODE_S, std::bind(&Camera::moveBackward, mainState.mainCamera));
-  mainState.mainBindings->setDownFunc(SDL_SCANCODE_A, std::bind(&Camera::strafeLeft, mainState.mainCamera));
-  mainState.mainBindings->setDownFunc(SDL_SCANCODE_D, std::bind(&Camera::strafeRight, mainState.mainCamera));
+    Bindings::setDownFunc(SDL_SCANCODE_W, std::bind(&Camera::moveForward, mainState.mainCamera));
+    Bindings::setDownFunc(SDL_SCANCODE_S, std::bind(&Camera::moveBackward, mainState.mainCamera));
+    Bindings::setDownFunc(SDL_SCANCODE_A, std::bind(&Camera::strafeLeft, mainState.mainCamera));
+    Bindings::setDownFunc(SDL_SCANCODE_D, std::bind(&Camera::strafeRight, mainState.mainCamera));
 
-  mainState.mainBindings->setDownFunc(SDL_SCANCODE_UP, std::bind(&Camera::moveUp, mainState.mainCamera));
-  mainState.mainBindings->setDownFunc(SDL_SCANCODE_DOWN, std::bind(&Camera::moveDown, mainState.mainCamera));
-  mainState.mainBindings->setDownFunc(SDL_SCANCODE_LEFT, std::bind(&Camera::turnLeft, mainState.mainCamera));
-  mainState.mainBindings->setDownFunc(SDL_SCANCODE_RIGHT, std::bind(&Camera::turnRight, mainState.mainCamera));
-  mainState.mainBindings->setUpFunc(SDL_SCANCODE_ESCAPE, quit);
-  mainState.mainBindings->setUpFunc(SDL_SCANCODE_E, pickUp);
-  mainState.mainBindings->setUpFunc(SDL_SCANCODE_SPACE, std::bind(&Camera::jump, mainState.mainCamera));
-  mainState.mainBindings->setDownFunc(SDL_SCANCODE_LSHIFT, std::bind(&Camera::run, mainState.mainCamera));
-  //mainState.mainBindings->setFunc(SDL_SCANCODE_1, changeMap);
+  Bindings::setDownFunc(SDL_SCANCODE_UP, std::bind(&Camera::moveUp, mainState.mainCamera));
+  Bindings::setDownFunc(SDL_SCANCODE_DOWN, std::bind(&Camera::moveDown, mainState.mainCamera));
+  Bindings::setDownFunc(SDL_SCANCODE_LEFT, std::bind(&Camera::turnLeft, mainState.mainCamera));
+  Bindings::setDownFunc(SDL_SCANCODE_RIGHT, std::bind(&Camera::turnRight, mainState.mainCamera));
+  Bindings::setUpFunc(SDL_SCANCODE_ESCAPE, quit);
+  Bindings::setUpFunc(SDL_SCANCODE_E, pickUp);
+  Bindings::setUpFunc(SDL_SCANCODE_SPACE, std::bind(&Camera::jump, mainState.mainCamera));
+  Bindings::setDownFunc(SDL_SCANCODE_LSHIFT, std::bind(&Camera::run, mainState.mainCamera));
+  //Bindings::setFunc(SDL_SCANCODE_1, changeMap);
 }
 
 void changeMap(std::string targetMap){
@@ -145,7 +147,7 @@ void changeMapINTERNAL(){
     mainState.mainPhysics->softCleanup();
     //delete mainState.basicMaterial;
     delete mainState.mainWorld;
-    delete mainState.mainBindings;
+    //delete mainState.mainBindings;
     //delete mainState.mainCamera;
     delete mainState.mainLoader;
     delete mainGame;
@@ -160,7 +162,7 @@ void changeMapINTERNAL(){
 
 
     mainState.mainWorld = new World(&mainState);
-    mainState.mainBindings = new Bindings();
+    //mainState.mainBindings = new Bindings();
     mainState.mainCamera = mainState.mainWorld->createCamera("player_cam", glm::vec3(0.0f, 0.0f, 0.0f), PLAYER_WALK, mainState.mainController);
 
     //mainState.mainLoader = new WorldLoader(mainState.mainArgs->getArguments()->tMap.c_str(), mainState.mainShader, mainState.mainWorld, mainState.mainPhysics, mainState.mainCamera);
@@ -214,7 +216,7 @@ int main(int argc, char **argv) {
     mainState.skyBox =  new Shader("shaders/skybox_v.glsl", "shaders/skybox_f.glsl");
 
     mainState.mainWorld = new World(&mainState);
-    mainState.mainBindings = new Bindings();
+    //mainState.mainBindings = new Bindings();
     mainState.mainCamera = mainState.mainWorld->createCamera("player_cam", glm::vec3(0.0f, 0.0f, 0.0f), PLAYER_WALK, mainState.mainController);
 
     //mainState.mainLoader = new WorldLoader(mainState.mainArgs->getArguments()->tMap.c_str(), mainState.mainShader, mainState.mainWorld, mainState.mainPhysics, mainState.mainCamera);
@@ -288,7 +290,7 @@ int main(int argc, char **argv) {
         keys = mainState.mainWindow->getActiveKeys();
         //for (unsigned int k = 0; k<keys.size(); k++)
         //{
-        //    mainState.mainBindings->callFunc(keys.at(k));
+        //    Bindings::callFunc(keys.at(k));
         //}
         mainState.mainCamera->getTarget(posHolder);
         mainState.mainController->move(posHolder);

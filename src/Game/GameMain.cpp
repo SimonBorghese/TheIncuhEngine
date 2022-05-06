@@ -6,8 +6,8 @@ GameMain::~GameMain() {}
 
 void GameMain::gameInit(){
     good = new Incuh::g_goodObject();
-    if (gState->mainWorld->getObjectByName("UNNAMED:info_prop:5")) {
-        good->addModel(((Model*) gState->mainWorld->getObjectByName("UNNAMED:info_prop:5")));
+    if (gState->mainWorld->getObjectByName("box1")) {
+        good->addModel(((Model*) gState->mainWorld->getObjectByName("box1")));
     }
     gameObjects.push_back(good);
 

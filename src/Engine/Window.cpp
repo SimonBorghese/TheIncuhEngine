@@ -49,7 +49,9 @@ void APIENTRY glDebugOutput(GLenum source,
     std::cout << std::endl;
 }
 
-Window::Window(IncuhState *state) : __width(state->mainArgs->getArguments()->width), __height(state->mainArgs->getArguments()->height), mainState(state){
+Window::Window(IncuhState *state) : mainState(state){
+    __width = mainState->mainArgs->getArguments()->width;
+    __height = mainState->mainArgs->getArguments()->height;
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0){
         printf("Failed to initalize SDL: %s\n", SDL_GetError());
     }
@@ -141,19 +143,32 @@ int Window::getCloseState(){
 
 std::vector<uint8_t> Window::getActiveKeys(){
   std::vector<uint8_t> keys;
+  Bindings::resetState();
   while (SDL_PollEvent(&e))
   {
 
       __mainUI->updateEvents(&e);
       if (e.type == SDL_KEYUP) {
-          mainState->mainBindings->callBackUp(e.key.keysym.scancode);
+          //mainState->mainBindings->callBackUp(e.key.keysym.scancode);
+          Bindings::callBackUp(e.key.keysym.scancode);
+      }
+      switch (e.type){
+          case SDL_KEYUP:
+              Bindings::registerKeyUp(e.key.keysym.scancode);
+              break;
+          case SDL_KEYDOWN:
+              Bindings::registerKeyDown(e.key.keysym.scancode);
+              break;
+          default:
+              break;
       }
 
   }
   __keys = SDL_GetKeyboardState(&__key_len);
   for (int x = 0; x<__key_len; x++){
     if (__keys[x]){
-      mainState->mainBindings->callBackDown(x);
+        Bindings::callBackDown(x);
+        Bindings::registerKey(x);
     }
   }
   return keys;
