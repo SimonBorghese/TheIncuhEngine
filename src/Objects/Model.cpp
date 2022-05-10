@@ -81,9 +81,9 @@ oUseMeshCollider(useMeshCollider)
 
     // Now we do positional stuff
     __pos = new glm::vec3(pos);
-    oQuat = quat;
-    //__scale = new glm::vec3(scle);
-    oScale = glm::vec3(1.0f);
+    __rot = new glm::quat(quat);
+    __scl = new glm::vec3(scle);
+    //__scl = new glm::vec3(1.0f);
     oModel = new glm::mat4(1.0f);
     oModelPos = oShader->getUniformLocation("model");
 
@@ -93,18 +93,20 @@ oUseMeshCollider(useMeshCollider)
 
     // This is what I call  p e a k  efficanty
     if (!useMeshCollider){
+
         __pos->x += (float) basefile["position"]["x"];
         __pos->y += (float) basefile["position"]["y"];
         __pos->z += (float) basefile["position"]["z"];
 
-        oQuat.w += (float) basefile["rotation"]["w"];
-        oQuat.x += (float) basefile["rotation"]["x"];
-        oQuat.y += (float) basefile["rotation"]["y"];
-        oQuat.z += (float) basefile["rotation"]["z"];
+        __rot->w += (float) basefile["rotation"]["w"];
+        __rot->x += (float) basefile["rotation"]["x"];
+        __rot->y += (float) basefile["rotation"]["y"];
+        __rot->z += (float) basefile["rotation"]["z"];
 
-        scle.x *= (float) basefile["scale"]["x"];
-        scle.y *= (float) basefile["scale"]["y"];
-        scle.z *= (float) basefile["scale"]["z"];
+        __scl->x *= (float) basefile["scale"]["x"];
+        __scl->y *= (float) basefile["scale"]["y"];
+        __scl->z *= (float) basefile["scale"]["z"];
+
         try{
             oHasCollider = (int) basefile["HasCollision"];
             oMass = (float) basefile["mass"];
@@ -127,11 +129,11 @@ oUseMeshCollider(useMeshCollider)
         if (strcmp(tempStr.substr(0,8).c_str(), "collider") != 0){
             if (oDiffuse == NULL)
             {
-                oMeshes.push_back(new Mesh(oScene->mMeshes[m], oScene->mMaterials[oScene->mMeshes[m]->mMaterialIndex], oModelName, &scle));
+                oMeshes.push_back(new Mesh(oScene->mMeshes[m], oScene->mMaterials[oScene->mMeshes[m]->mMaterialIndex], oModelName, __scl));
             }
             else
             {
-                oMeshes.push_back(new Mesh(oScene->mMeshes[m], NULL, oModelName, &scle));
+                oMeshes.push_back(new Mesh(oScene->mMeshes[m], NULL, oModelName, __scl));
             }
         }
     }
@@ -150,9 +152,9 @@ oUseMeshCollider(useMeshCollider)
                 targetVertices = new std::vector<float>;
                 targetIndices = new std::vector<uint32_t>;
                 for (unsigned int x = 0 ; x < oScene->mMeshes[m]->mNumVertices; x++){
-                    targetVertices->push_back( oScene->mMeshes[m]->mVertices[x].x * scle.x);
-                    targetVertices->push_back( oScene->mMeshes[m]->mVertices[x].y * scle.y);
-                    targetVertices->push_back( oScene->mMeshes[m]->mVertices[x].z * scle.z);
+                    targetVertices->push_back( oScene->mMeshes[m]->mVertices[x].x * __scl->x);
+                    targetVertices->push_back( oScene->mMeshes[m]->mVertices[x].y * __scl->y);
+                    targetVertices->push_back( oScene->mMeshes[m]->mVertices[x].z * __scl->z);
                 }
                 for (unsigned int f = 0; f < oScene->mMeshes[m]->mNumFaces; f++){
                     for (unsigned int i = 0; i < oScene->mMeshes[m]->mFaces[f].mNumIndices; i++){
@@ -222,10 +224,10 @@ void Model::update()
         __pos->z = oTargetHolder[2];
         //printf("getting 1 %f %f %f\n", oTargetHolder[0], oTargetHolder[1], oTargetHolder[2]);
         oMesh->getRotation(oTargetHolder);
-        oQuat.w = oTargetHolder[0];
-		oQuat.x = oTargetHolder[1];
-		oQuat.y = oTargetHolder[2];
-		oQuat.z = oTargetHolder[3];
+        __rot->w = oTargetHolder[0];
+		__rot->x = oTargetHolder[1];
+		__rot->y = oTargetHolder[2];
+		__rot->z = oTargetHolder[3];
     }
     else if (oBindControl != nullptr){
         oBindControl->getPosition(oTargetHolder);
@@ -238,23 +240,14 @@ void Model::update()
         __pos->y = 0.0f;
         __pos->z = 0.0f;
     }
-    /*
-    if (oHasCollider){
-        oTargetHolder[0] = __pos->x;
-        oTargetHolder[1] = __pos->y;
-        oTargetHolder[2] = __pos->z;
-        oMesh->setPosition(oTargetHolder);
-    }
-    */
-
 
     *oModel = glm::mat4(1.0f);
     *oModel = glm::translate(*oModel, *__pos);
-    if (!oUseMeshCollider && oQuat != glm::quat(0.0f, 0.0f, 0.0f, 0.0f)){
-        *oModel = glm::rotate(*oModel, glm::angle(oQuat), glm::axis(oQuat));
+    if (!oUseMeshCollider && *__rot != glm::quat(0.0f, 0.0f, 0.0f, 0.0f)){
+        *oModel = glm::rotate(*oModel, glm::angle(*__rot), glm::axis(*__rot));
     }
 
-    *oModel = glm::scale(*oModel, oScale);
+    //*oModel = glm::scale(*oModel, *__scl);
     oShader->setMatrix4f(oModelPos, *oModel);
     oMat->apply();
     render();
@@ -289,7 +282,15 @@ void Model::translate(float *newPos){
 	else if (oBindControl != nullptr){
 	    oBindControl->translate(newPos);
 	}
-
+}
+void Model::rotate(float *newPos){
+    if (newPos == NULL) { return;}
+    if (oHasCollider && oBindControl == nullptr){
+        oMesh->setRotation(newPos);
+    }
+    else if (oBindControl != nullptr){
+        return;
+    }
 }
 
 void Model::bindNPC(n_baseNPC *npc){

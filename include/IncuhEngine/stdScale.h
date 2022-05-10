@@ -6,7 +6,7 @@
 
 
 #define GLOBAL_BSP_SCAlE 0.0625 // 1/16
-#define FPS_MAX 330
+#define FPS_MAX 400
 #define PLAYER_WALK 15.0f
 #define PLAYER_RUN 0.1f
 

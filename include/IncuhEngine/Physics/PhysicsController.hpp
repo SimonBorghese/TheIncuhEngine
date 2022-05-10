@@ -37,7 +37,7 @@ class PhysicsController{
 
             pMainController->setPosition(physx::PxExtendedVec3(pos[0], pos[1], pos[2]));
         }
-
+        
         int onGround(){
         	physx::PxControllerState state;
         	pMainController->getState(state);

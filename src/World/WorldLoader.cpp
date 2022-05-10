@@ -9,6 +9,7 @@ WorldLoader::WorldLoader(IncuhState *state){
     bsp = CBSP_loadBSP(levelFile.c_str());
     float targetPos[3] = {0.0f, 0.0f, 0.0f};
     entityMap.insert(std::make_pair(std::string("prop"), PROP));
+    entityMap.insert(std::make_pair(std::string("prop_script"), PROP_SCRIPT));
     entityMap.insert(std::make_pair(std::string ("light"), LIGHT));
     entityMap.insert(std::make_pair(std::string ("sun"), SUN));
     entityMap.insert(std::make_pair(std::string ("trigger"), TRIGGER));
@@ -57,6 +58,9 @@ WorldLoader::WorldLoader(IncuhState *state){
                     case PROP:
                         goto PROP_SPAWN;
                         break;
+                    case PROP_SCRIPT:
+                        goto PROP_SCRIPT_SPAWN;
+                        break;
                     case LIGHT:
                         goto LIGHT_SPAWN;
                         break;
@@ -87,7 +91,7 @@ WorldLoader::WorldLoader(IncuhState *state){
                     charHolder = (char*) CB(CBSP_getKeyFromEntity(&bsp->mEntity[e], "dynamic"));
                     dynamic_prop = atoi(charHolder);
                     //free(charHolder);
-                    // If a name cannot be found...
+                    // If a name cannot be found
                     printf("Spawning...: %s\n", fmt::format("UNNAMED:{}:{}", bsp->mEntity[e].classname, e).c_str());
                     if (!strcmp( CB(CBSP_getKeyFromEntity(&bsp->mEntity[e], "name")), CBSP_getKeyFromEntity_FAILURE )){
                         state->mainWorld->createObject(fmt::format("UNNAMED:{}:{}", bsp->mEntity[e].classname, e).c_str(),
@@ -108,6 +112,34 @@ WorldLoader::WorldLoader(IncuhState *state){
                     }
                 continue;
                 // END PROP
+
+
+                PROP_SCRIPT_SPAWN:
+                charHolder = (char*) CB(CBSP_getKeyFromEntity(&bsp->mEntity[e], "dynamic"));
+                dynamic_prop = atoi(charHolder);
+                //free(charHolder);
+                // If a name cannot be found
+                printf("Spawning...: %s\n", fmt::format("UNNAMED:{}:{}", bsp->mEntity[e].classname, e).c_str());
+                if (!strcmp( CB(CBSP_getKeyFromEntity(&bsp->mEntity[e], "name")), CBSP_getKeyFromEntity_FAILURE )){
+                    state->mainGame->addModelToClass(state->mainWorld->createObject(fmt::format("UNNAMED:{}:{}", bsp->mEntity[e].classname, e).c_str(),
+                                                   glm::vec3(targetPos[0] * BSPSCALE, (targetPos[2] * BSPSCALE), -targetPos[1]*BSPSCALE),
+                                                   glm::quat(0.7071068f, 0.7071068f, 0.0f, 0.0f),
+                                                   glm::vec3((double) j["scale"]),
+                                                   CB(CBSP_getKeyFromEntity(&bsp->mEntity[e], "prop")),
+                                                   NULL,
+                                                   (Material*) (new Material(state->mainShader, "materials/default.json")), 0, dynamic_prop),
+                                                     std::string((char*) CB(CBSP_getKeyFromEntity(&bsp->mEntity[e], "script"))));
+                } else{ // If a name is found...
+                    state->mainGame->addModelToClass(state->mainWorld->createObject( CB(CBSP_getKeyFromEntity(&bsp->mEntity[e], "name")),
+                                                    glm::vec3(targetPos[0] * BSPSCALE, (targetPos[2] * BSPSCALE), -targetPos[1]*BSPSCALE),
+                                                    glm::quat(0.7071068f, 0.7071068f, 0.0f, 0.0f),
+                                                    glm::vec3((double) j["scale"]),
+                                                    CB(CBSP_getKeyFromEntity(&bsp->mEntity[e], "prop")),
+                                                    NULL,
+                                                    (Material*) (new Material(state->mainShader, "materials/default.json")), 0, dynamic_prop),
+                                                     std::string((char*) CB(CBSP_getKeyFromEntity(&bsp->mEntity[e], "script"))));
+                }
+                continue;
 
                 LIGHT_SPAWN:
                     lightdistance = atoi(CB(CBSP_getKeyFromEntity(&bsp->mEntity[e], "distance")));

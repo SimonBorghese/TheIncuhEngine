@@ -55,7 +55,17 @@ class PhysicsObject{
                 return;
             }
             pMainRigid->addForce(physx::PxVec3(direction[0] * force, direction[1] * force, direction[2] * force), physx::PxForceMode::eACCELERATION);
+            //pMainRigid->setAngularVelocity()
        }
+    void setVelocity(float *direction, float force){
+        if (direction == NULL){
+            return;
+        }
+        pMainRigid->setLinearVelocity(physx::PxVec3(direction[0] * force, direction[1] * force, direction[2] * force));
+        //pMainRigid->setAngularVelocity()
+    }
+
+
 
 
         physx::PxRigidBody *getRigidBody(){ return pMainRigid; }

@@ -16,26 +16,28 @@ class PhysicsCore;
 class PhysicsBoxController;
 class PhysicsCapsuleController;
 class PhysicsMaterial;
+class GameMain;
 #include <glm/glm.hpp>
 
 
 // Long constructors solved
 typedef struct{
-    glm::mat4 *model, *view, *projection, *ortho;
+    glm::mat4                   *model, *view, *projection, *ortho;
 
-    LArgs::LauncherArgs *mainArgs;
-    Window              *mainWindow;
-    Shader              *mainShader, *skyBox;
-    World               *mainWorld;
-    Bindings            *mainBindings;
-    Camera              *mainCamera;
-    CubeMap             *mainSkybox;
-    WorldLoader         *mainLoader;
-    AudioBase           *mainAudio;
-    PhysicsCore *mainPhysics;
-    PhysicsBoxController *boxController;
-    PhysicsCapsuleController *mainController;
-    PhysicsMaterial *basicMaterial;
+    LArgs::LauncherArgs         *mainArgs;
+    Window                      *mainWindow;
+    Shader                      *mainShader, *skyBox;
+    World                       *mainWorld;
+    Bindings                    *mainBindings;
+    Camera                      *mainCamera;
+    CubeMap                     *mainSkybox;
+    WorldLoader                 *mainLoader;
+    AudioBase                   *mainAudio;
+    PhysicsCore                 *mainPhysics;
+    PhysicsBoxController        *boxController;
+    PhysicsCapsuleController    *mainController;
+    PhysicsMaterial             *basicMaterial;
+    GameMain                    *mainGame;
 } IncuhState;
 
 // Do not enable if using with a class that exists within the state

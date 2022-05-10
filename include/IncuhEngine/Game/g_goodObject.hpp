@@ -7,19 +7,19 @@
 namespace Incuh {
     class g_goodObject : public GameObject {
     public:
-        g_goodObject() {}
+        g_goodObject(IncuhState *state) : GameObject(state) {}
 
-        void start(){}
-        void update() {
-            for (unsigned int g = 0; g < models.size(); g++){
-                if (Bindings::getKeyDown(SDL_SCANCODE_SPACE)) {
-                    float direction[3];
-                    direction[0] = 0.0f;
-                    direction[1] = 0.0f;
-                    direction[2] = 1.0f;
-                    models.at(g)->getPhysicsMesh()->applyForce(direction, 5000.0f);
-                }
-            }
+        void start(Model*){}
+        void update(Model *model) {
+            //if (Bindings::getKey(SDL_SCANCODE_B)) {
+
+                float direction[3];
+
+                direction[0] = mainState->mainCamera->getPos().x- model->getPosition().x;
+                direction[1] = 0.0f;
+                direction[2] = mainState->mainCamera->getPos().z- model->getPosition().z;
+                model->getPhysicsMesh()->applyForce(direction, 0.4f);
+            //}
         }
     private:
     };

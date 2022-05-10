@@ -13,6 +13,7 @@
 #include <map>
 #include <vector>
 #include <functional>
+#include <Game/GameMain.hpp>
 #ifndef NOEXERNLIBS
 #include <assimp/IOSystem.hpp>
 #include <assimp/Importer.hpp>
@@ -36,7 +37,6 @@
 #include <stdScale.h>
 #endif
 
-
 /*
 World Loader:
     Loads vertices into World and Creates World Object
@@ -50,6 +50,7 @@ WorldLoader::WorldLoader(const char *fileName, Shader *shader, World *__target, 
 
 enum ENTITES_TYPES{
     PROP,
+    PROP_SCRIPT,
     LIGHT,
     SUN,
     TRIGGER

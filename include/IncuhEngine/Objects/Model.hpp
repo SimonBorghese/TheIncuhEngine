@@ -91,6 +91,7 @@ public:
     void bindController(PhysicsController *targetController);
 
     void translate(float *newPos);
+    void rotate(float *newPos);
 
     PhysicsObject* getPhysicsMesh() { return oMesh; }
 

@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <chrono>
 #include <thread>
@@ -79,7 +78,7 @@ uint64_t getSecond(){
 
 void quit(){
     mainState.mainWorld->destroyTheWorld();
-    mainGame->gameClose();
+    mainState.mainGame->gameClose();
 	delete mainState.mainWindow;
 	delete mainState.mainShader;
 
@@ -128,7 +127,7 @@ void setupBinds(){
   Bindings::setDownFunc(SDL_SCANCODE_RIGHT, std::bind(&Camera::turnRight, mainState.mainCamera));
   Bindings::setUpFunc(SDL_SCANCODE_ESCAPE, quit);
   Bindings::setUpFunc(SDL_SCANCODE_E, pickUp);
-  Bindings::setUpFunc(SDL_SCANCODE_SPACE, std::bind(&Camera::jump, mainState.mainCamera));
+  Bindings::setDownFunc(SDL_SCANCODE_SPACE, std::bind(&Camera::jump, mainState.mainCamera));
   Bindings::setDownFunc(SDL_SCANCODE_LSHIFT, std::bind(&Camera::run, mainState.mainCamera));
   //Bindings::setFunc(SDL_SCANCODE_1, changeMap);
 }
@@ -150,7 +149,7 @@ void changeMapINTERNAL(){
     //delete mainState.mainBindings;
     //delete mainState.mainCamera;
     delete mainState.mainLoader;
-    delete mainGame;
+    delete mainState.mainGame;
     delete mainState.mainSkybox;
     mainState.mainArgs->getArguments()->tMap = newLevel;
     //mainState.mainPhysics = new PhysicsCore(physx::PxVec3(0.0f, -9.87, 0.0f));
@@ -171,7 +170,7 @@ void changeMapINTERNAL(){
     gameState.currentShader = mainState.mainShader;
     gameState.currentWindow = mainState.mainWindow;
     gameState.currentWorld  = mainState.mainWorld;
-    mainGame = new GameMain(&mainState);
+    mainState.mainGame = new GameMain(&mainState);
 
     mainState.mainSkybox = new CubeMap("clouds", GL_TEXTURE16, GL_RGB, 0, mainState.skyBox, mainState.view, mainState.projection);
 
@@ -186,7 +185,7 @@ void changeMapINTERNAL(){
 
     mainState.mainCamera->setDeltaTime(1.0f);
     start2 = getNanoseconds();
-    ((GameMain*)mainGame)->gameInit();
+    ((GameMain*)mainState.mainGame)->gameInit();
 }
 
 int main(int argc, char **argv) {
@@ -220,12 +219,13 @@ int main(int argc, char **argv) {
     mainState.mainCamera = mainState.mainWorld->createCamera("player_cam", glm::vec3(0.0f, 0.0f, 0.0f), PLAYER_WALK, mainState.mainController);
 
     //mainState.mainLoader = new WorldLoader(mainState.mainArgs->getArguments()->tMap.c_str(), mainState.mainShader, mainState.mainWorld, mainState.mainPhysics, mainState.mainCamera);
-    mainState.mainLoader = new WorldLoader(&mainState);
     gameState.currentCamera = mainState.mainCamera;
     gameState.currentShader = mainState.mainShader;
     gameState.currentWindow = mainState.mainWindow;
     gameState.currentWorld  = mainState.mainWorld;
-    mainGame = (new GameMain(&mainState));
+    mainState.mainGame = (new GameMain(&mainState));
+    mainState.mainGame->gameInit();
+    mainState.mainLoader = new WorldLoader(&mainState);
 
     mainState.mainSkybox = new CubeMap("clouds", GL_TEXTURE16, GL_RGB, 0, mainState.skyBox, mainState.view, mainState.projection);
     //mainWorld->addObject((Object*) mainSkybox, "skybox");
@@ -242,7 +242,7 @@ int main(int argc, char **argv) {
 
     mainState.mainCamera->setDeltaTime(1.0f);
     start2 = getNanoseconds();
-    ((GameMain*)mainGame)->gameInit();
+    //((GameMain*)mainState.mainGame)->gameInit();
 
     uint64_t lastFrame = getNanoseconds();
     uint64_t currentFrame = getNanoseconds();
@@ -310,7 +310,7 @@ int main(int argc, char **argv) {
         mainState.mainShader->useMain();
         mainState.mainShader->setFloat(mainState.mainShader->getUniformLocation("brightness"), mainState.mainArgs->getArguments()->brightness);
 
-        ((GameMain*)mainGame)->gameLoop();
+        ((GameMain*)mainState.mainGame)->gameLoop();
 
         mainState.mainWorld->updateMat();
         mainState.mainWorld->updateObjects();
