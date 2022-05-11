@@ -10,6 +10,7 @@
 #include <AudioBase.hpp>
 #include <physx/PxPhysicsAPI.h>
 #include <physx/PxSimulationEventCallback.h>
+#include <Physics/PhysicsCore.hpp>
 #include <stdio.h>
 #include <stdScale.h>
 #include <Server/Logging.h>
@@ -17,6 +18,8 @@
 #include <fmt/core.h>
 #include <fmt/format.h>
 #include <functional>
+#include <Game/GameObject.hpp>
+#include <Game/GameMain.hpp>
 
 using namespace physx;
 

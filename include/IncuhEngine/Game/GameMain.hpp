@@ -2,6 +2,7 @@
 #define GAMEMAIN_HPP
 #include <Window.hpp>
 #include <Shader.hpp>
+#include <Model.hpp>
 #include <World.hpp>
 #include <Camera.hpp>
 #include <Light.hpp>
@@ -30,6 +31,8 @@ class GameMain{
         void gameClose();
 
         void addModelToClass(Model* model, std::string classname);
+
+        Incuh::GameObject* getGameObjectFromClassname(std::string classname);
     private:
         IncuhState *gState;
         std::vector<Incuh::GameObject*> gameObjects;

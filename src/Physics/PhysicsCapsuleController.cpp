@@ -28,5 +28,6 @@ PhysicsCapsuleController::~PhysicsCapsuleController(){
 
 void PhysicsCapsuleController::makeConfig(physx::PxControllerManager *controllerManager){
     pMainController = controllerManager->createController(*pChrDec);
+    pMainController->setUserData((void*)0);
     //pMainController->setPosition(physx::PxExtendedVec3())
 }

@@ -2,7 +2,7 @@
 
 PhysicsTriggerCallback::PhysicsTriggerCallback(IncuhState *state, CallbackFunctions callbacks) : pFunctions(callbacks), tState(state)
 {
-    //ctor
+    state->mainPhysics->getScene()->setSimulationEventCallback((physx::PxSimulationEventCallback*)this);
 }
 
 PhysicsTriggerCallback::~PhysicsTriggerCallback()
@@ -12,13 +12,13 @@ PhysicsTriggerCallback::~PhysicsTriggerCallback()
 
 void PhysicsTriggerCallback::onTrigger(PxTriggerPair* pairs, PxU32 count){
     for (uint32_t c = 0; c < count; c++){
-        printf("Found Actor: %s Touching Trigger: %s\n", pairs[c].otherActor->getName(), pairs[c].triggerActor->getName());
-        if (!strcmp(pairs[c].otherActor->getName(), "player_cam")){
-            printf("They're Among Us SUSSY\n");
-        }
-        else{
-            printf("No, not amogus\n");
-        }
+        //printf("Found Actor: %s Touching Trigger: %s\n", pairs[c].otherActor->getName(), pairs[c].triggerActor->getName());
+        //if (!strcmp(pairs[c].otherActor->getName(), "player_cam")){
+        //    printf("They're Among Us SUSSY\n");
+        //}
+        //else{
+        //    printf("No, not amogus\n");
+       // }
         pCallback = (triggerCallbacks*)pairs->triggerActor[c].userData;
         // If, this was ever NULL
         assert(pCallback == NULL);
@@ -35,7 +35,12 @@ void PhysicsTriggerCallback::onTrigger(PxTriggerPair* pairs, PxU32 count){
                 printf("It best be time to switch levels\n");
                 pCallback->triggered = 1;
                 pFunctions.levelChange(std::string(pCallback->target));
+                break;
 
+            case TRIGGER_SCRIPTED:
+                printf("Callback to: %s\n", pCallback->script);
+                ((Incuh::GameObject*) tState->mainGame->getGameObjectFromClassname(pCallback->script))->onTriggerEnter((Model*) pairs->otherActor[c].userData);
+                //pCallback->callbackTriggerEnter(pairs->otherActor[c].userData);
                 break;
             default:
                 incuh_error(fmt::format("Unidentified Trigger Type: {}\n", pCallback->triggerType).c_str());

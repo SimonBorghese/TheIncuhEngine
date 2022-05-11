@@ -51,3 +51,13 @@ void GameMain::addModelToClass(Model* model, std::string classname){
         printf("Warning: Class name: %s is not a registered class\n", classname.c_str());
     }
 }
+
+Incuh::GameObject* GameMain::getGameObjectFromClassname(std::string classname){
+    if (classMap.count(classname) > 0){
+        return classMap.at(classname);
+    }
+    else{
+        printf("Warning: Class name: %s is not a registered class\n", classname.c_str());
+        return NULL;
+    }
+}

@@ -18,7 +18,8 @@ WorldLoader::WorldLoader(IncuhState *state){
 
         if (!strcmp(bsp->mEntity[e].classname, "info_player_start")){
                 CBSP_getOriginFromEntity(&bsp->mEntity[e], &(targetPos[0]));
-                state->mainCamera->setPos(glm::vec3(targetPos[0]*BSPSCALE, (targetPos[2]*BSPSCALE), targetPos[1]*BSPSCALE ));
+                printf("Balls : %f %f %f\n",targetPos[0]*BSPSCALE, (targetPos[2]*BSPSCALE), targetPos[1]*BSPSCALE);
+                state->mainCamera->setPos(glm::vec3(targetPos[1]*BSPSCALE, (targetPos[2]*BSPSCALE), targetPos[0]*BSPSCALE ));
 
                 //PLAYER_WALK *= atof(CBSP_getKeyFromEntity(&bsp->mEntity[e], "speed"));
                 //PLAYER_RUN *= atof(CBSP_getKeyFromEntity(&bsp->mEntity[e], "speed"));
@@ -75,6 +76,9 @@ WorldLoader::WorldLoader(IncuhState *state){
                                 break;
                             case TRIGGER_LEVEL_CHANGE:
                                 goto LEVEL_CHANGE_TRIGGER;
+                                break;
+                            case TRIGGER_SCRIPTED:
+                                goto SCRIPTED_TRIGGER;
                                 break;
                             default:
                                 incuh_error(fmt::format("Unidentified Trigger Type: {}\n", triggerType ).c_str());
@@ -209,6 +213,20 @@ WorldLoader::WorldLoader(IncuhState *state){
                             triggerCallback)));
                     //delete triggerCallback;
 
+                continue;
+
+                SCRIPTED_TRIGGER:
+                triggerCallback = (triggerCallbacks*) GB(new triggerCallbacks);
+                triggerCallback->triggerType = TRIGGER_SCRIPTED;
+                triggerCallback->script = (CB(CBSP_getKeyFromEntity(&bsp->mEntity[e], "script")));
+                printf("found the funny script: %s\n", triggerCallback->script);
+                triggerCallback->onlyOnce = !(atoi(std::string(CB(CBSP_getKeyFromEntity(&bsp->mEntity[e], "only_once"))).c_str()));
+                triggerCallback->triggered = 0;
+                state->mainPhysics->addPhysicsObject((PhysicsTrigger*) GB(new PhysicsTrigger( CB(CBSP_getKeyFromEntity(&bsp->mEntity[e], "name")),
+                                                                                              physx::PxVec3(targetPos[0] * BSPSCALE, (targetPos[2] * BSPSCALE), -targetPos[1]*BSPSCALE),
+                                                                                              (float) atoi( CB(CBSP_getKeyFromEntity(&bsp->mEntity[e], "distance")) ),
+                                                                                              (PhysicsMaterial*) GB(new PhysicsMaterial((0.0f), (0.0f), (0.0f), state->mainPhysics)), state->mainPhysics,
+                                                                                              triggerCallback)));
                 continue;
                 //END TRIGGER SPAWN
 

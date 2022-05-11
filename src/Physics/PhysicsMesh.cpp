@@ -8,7 +8,7 @@
 #include <Physics/PhysicsMesh.hpp>
 #include <cstdint>
 
-PhysicsMesh::PhysicsMesh(physx::PxVec3 position, std::vector<float> *vertices, RigidTypes rigidType, PhysicsMaterial *dMat, PhysicsCore *core){
+PhysicsMesh::PhysicsMesh(physx::PxVec3 position, std::vector<float> *vertices, RigidTypes rigidType, PhysicsMaterial *dMat, PhysicsCore *core, void *currentModel){
     //pMainMat = dMat->getMaterial();
     pMainMaterial = dMat;
     if (rigidType == DYNAMIC){
@@ -83,11 +83,12 @@ PhysicsMesh::PhysicsMesh(physx::PxVec3 position, std::vector<float> *vertices, R
         //free(convexMesh);
         pConvexMesh = convexMesh;
     }
+    pMainRigid->userData = currentModel;
 
     //dMainRigid->setMass(5.0f);
     //dMainRigid->setMassSpaceInertiaTensor(physx::PxVec3(5.0f));
 }
-PhysicsMesh::PhysicsMesh(physx::PxVec3 position, std::vector<float> *vertices, std::vector<uint32_t> *indicies, RigidTypes rigidType, PhysicsMaterial *dMat, PhysicsCore *core){
+PhysicsMesh::PhysicsMesh(physx::PxVec3 position, std::vector<float> *vertices, std::vector<uint32_t> *indicies, RigidTypes rigidType, PhysicsMaterial *dMat, PhysicsCore *core, void *currentModel){
     //pMainMat = dMat->getMaterial();
     pMainMaterial = dMat;
     if (rigidType == DYNAMIC){
@@ -145,6 +146,7 @@ PhysicsMesh::PhysicsMesh(physx::PxVec3 position, std::vector<float> *vertices, s
         //free(convexMesh);
         pTriMesh = convexMesh;
     }
+    pMainRigid->userData = currentModel;
 }
 
 PhysicsMesh::~PhysicsMesh(){

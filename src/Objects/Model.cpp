@@ -170,6 +170,7 @@ oUseMeshCollider(useMeshCollider)
                     targetMesh = (new PhysicsMesh(physx::PxVec3(__pos->x, __pos->y, __pos->z), targetVertices, DYNAMIC, new PhysicsMaterial((0.1f/frictionDivider), (0.2f/frictionDivider), (0.0f), core, oMass, oSMI), core ));
                 }
                 targetMesh->setName(name);
+                targetMesh->getRigidBody()->userData = (Model*)this;
                 core->addPhysicsObject(targetMesh);
                 targetMeshes.push_back(targetMesh);
                 oMesh = targetMesh;

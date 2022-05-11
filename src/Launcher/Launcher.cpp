@@ -28,6 +28,7 @@
 #include <Physics/PhysicsCapsuleController.hpp>
 #include <Physics/PhysicsMesh.hpp>
 #include <Physics/PhysicsBoxController.hpp>
+#include <Physics/PhysicsTriggerCallback.hpp>
 #include <imgui.h>
 #include <imgui_impl_sdl.h>
 #include <imgui_impl_opengl3.h>
@@ -157,7 +158,7 @@ void changeMapINTERNAL(){
     mainState.mainController = new PhysicsCapsuleController(new PhysicsMaterial(1.0f, 1.0f, 0.01f, mainState.mainPhysics), 1.5f, 1.0f, 1.0f, 1.0f, 1.0f, 2.0f, 70.0f);
 
     // Now we can initalize our window, shaders, and world
-    mainState.mainPhysics->setTriggerCallback(new PhysicsTriggerCallback(&mainState, mainFuncs));
+    //mainState.mainPhysics->setTriggerCallback(new PhysicsTriggerCallback(&mainState, mainFuncs));
 
 
     mainState.mainWorld = new World(&mainState);
@@ -209,7 +210,8 @@ int main(int argc, char **argv) {
 
     mainState.mainAudio = new AudioBase();
 
-    mainState.mainPhysics->setTriggerCallback(new PhysicsTriggerCallback(&mainState, mainFuncs));
+    //mainState.mainPhysics->setTriggerCallback(new PhysicsTriggerCallback(&mainState, mainFuncs));
+    new PhysicsTriggerCallback(&mainState, mainFuncs);
 
     mainState.mainShader = (new Shader("shaders/vertex.glsl", "shaders/fragment.glsl"));
     mainState.skyBox =  new Shader("shaders/skybox_v.glsl", "shaders/skybox_f.glsl");

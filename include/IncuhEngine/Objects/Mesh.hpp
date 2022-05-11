@@ -5,7 +5,6 @@
 #include <Object.hpp>
 #include <Shader.hpp>
 #include <Image.hpp>
-#include <Physics/PhysicsMesh.hpp>
 #ifndef NOEXERNLIBS
 
 #include "glad/glad.h"
@@ -35,7 +34,6 @@ class Mesh: public Object{
     uint32_t EBO = 0;
     Image *oTexture = nullptr;
     uint32_t oVertices_size, oIndicesSize;
-    PhysicsMesh *oMesh;
 
 };
 

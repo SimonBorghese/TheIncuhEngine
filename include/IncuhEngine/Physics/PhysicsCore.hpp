@@ -10,7 +10,8 @@
 #include <Physics/PhysicsObject.hpp>
 #include <Physics/PhysicsPointer.hpp>
 #include <Physics/PhysicsController.hpp>
-#include <Physics/PhysicsTriggerCallback.hpp>
+
+using namespace physx;
 
 class PhysicsCore{
     public:
@@ -26,8 +27,9 @@ class PhysicsCore{
 
         physx::PxPhysics* getPhysics() { return pPhysics; }
         physx::PxCooking* getCooking() { return pCooking; }
+        physx::PxScene* getScene() { return pScene; }
 
-        void setTriggerCallback(PhysicsTriggerCallback *callback) {  pScene->setSimulationEventCallback(callback); }
+        //void setTriggerCallback(PhysicsTriggerCallback *callback) {  pScene->setSimulationEventCallback(callback); }
 
         PhysicsPointer* rayCast(float *origin, float *direction, float length){
             PxVec3 porigin = physx::PxVec3(origin[0], origin[1], origin[2]);

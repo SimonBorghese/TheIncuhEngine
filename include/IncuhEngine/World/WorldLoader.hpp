@@ -14,6 +14,7 @@
 #include <vector>
 #include <functional>
 #include <Game/GameMain.hpp>
+#include <Game/GameObject.hpp>
 #ifndef NOEXERNLIBS
 #include <assimp/IOSystem.hpp>
 #include <assimp/Importer.hpp>

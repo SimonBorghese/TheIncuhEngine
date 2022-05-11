@@ -3,6 +3,7 @@
 /*
  * The purpose of this file is to contain structs & defines needed by multiple files that also don't contain any dependancies on non-built in types
 */
+#include <functional>
 
 
 #define GLOBAL_BSP_SCAlE 0.0625 // 1/16
@@ -12,12 +13,14 @@
 
 enum TRIGGER_TYPES{
     TRIGGER_SOUND = 0,
-    TRIGGER_LEVEL_CHANGE = 1
+    TRIGGER_LEVEL_CHANGE = 1,
+    TRIGGER_SCRIPTED = 2
 };
 
 typedef struct{
     int triggerType;
     const char *target;
+    const char *script;
     unsigned int onlyOnce : 1;
     unsigned int triggered : 1;
 } triggerCallbacks;
